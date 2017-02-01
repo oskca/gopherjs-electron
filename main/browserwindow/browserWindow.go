@@ -3,6 +3,7 @@ package browserwindow
 import (
 	"github.com/gopherjs/gopherjs/js"
 	electron "github.com/oskca/gopherjs-electron"
+	"github.com/oskca/gopherjs-electron/main/webcontents"
 	"github.com/oskca/gopherjs-nodejs/eventemitter"
 )
 
@@ -184,7 +185,7 @@ type BrowserWindow struct {
 	// win.webContents
 	// A WebContents object this window owns. All web page related events and operations will be done via it.
 	// See the webContents documentation for its methods and events.
-	WebContents *js.Object `js:"webContents"`
+	WebContents *webcontents.WebContents `js:"webContents"`
 
 	// win.id
 	// A Integer representing the unique ID of the window.
