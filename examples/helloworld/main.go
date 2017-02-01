@@ -9,7 +9,7 @@ import (
 
 func main() {
 	app := electron.GetApp()
-	app.On(electron.Ready, func(args ...*js.Object) {
+	app.On(electron.EvtReady, func(args ...*js.Object) {
 		opt := browserwindow.NewOption()
 		bw := browserwindow.New(opt)
 		bw.LoadURL("file://" + nodejs.DirName() + "/index.html")

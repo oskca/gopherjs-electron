@@ -10,209 +10,26 @@ var (
 	}
 )
 
-// Event: ‘will-finish-launching’
-// Emitted when the application has finished basic startup. On Windows and Linux, the will-finish-launching event is the same as the ready event; on macOS, this event represents the applicationWillFinishLaunching notification of NSApplication. You would usually set up listeners for the open-file and open-url events here, and start the crash reporter and auto updater.
-const WillFinishLaunching = "will-finish-launching"
-
-// In most cases, you should just do everything in the ready event handler.
-// Event: ‘ready’
-// Returns:
-// launchInfo Object macOS
-// Emitted when Electron has finished initializing. On macOS, launchInfo holds the userInfo of the NSUserNotification that was used to open the application, if it was launched from Notification Center. You can call app.isReady() to check if this event has already fired.
-const Ready = "ready"
-
-// Event: ‘window-all-closed’
-// Emitted when all windows have been closed.
-// If you do not subscribe to this event and all windows are closed, the default behavior is to quit the app; however, if you subscribe, you control whether the app quits or not. If the user pressed Cmd + Q, or the developer called app.quit(), Electron will first try to close all the windows and then emit the will-quit event, and in this case the window-all-closed event would not be emitted.
-const WindowAllClosed = "window-all-closed"
-
-// Event: ‘before-quit’
-// Returns:
-// event Event
-// Emitted before the application starts closing its windows. Calling event.preventDefault() will prevent the default behaviour, which is terminating the application.
-//
-// Note: If application quit was initiated by autoUpdater.quitAndInstall() then before-quit is emitted after emitting close event on all windows and closing them.
-const BeforeQuit = "before-quit"
-
-// Event: ‘will-quit’
-// Returns:
-// event Event
-// Emitted when all windows have been closed and the application will quit. Calling event.preventDefault() will prevent the default behaviour, which is terminating the application.
-//
-// See the description of the window-all-closed event for the differences between the will-quit and window-all-closed events.
-const WillQuit = "will-quit"
-
-// Event: ‘quit’
-// Returns:
-
-// event Event
-// exitCode Integer
-// Emitted when the application is quitting.
-const Quit = "quit"
-
-// Event: ‘open-file’ macOS
-// Returns:
-//
-// event Event
-// path String
-// Emitted when the user wants to open a file with the application. The open-file event is usually emitted when the application is already open and the OS wants to reuse the application to open the file. open-file is also emitted when a file is dropped onto the dock and the application is not yet running. Make sure to listen for the open-file event very early in your application startup to handle this case (even before the ready event is emitted).
-//
-// You should call event.preventDefault() if you want to handle this event.
-//
-// On Windows, you have to parse process.argv (in the main process) to get the filepath.
-const OpenFile = "open-file"
-
-// Event: ‘open-url’ macOS
-// Returns:
-//
-// event Event
-// url String
-// Emitted when the user wants to open a URL with the application. Your application’s Info.plist file must define the url scheme within the CFBundleURLTypes key, and set NSPrincipalClass to AtomApplication.
-//
-// You should call event.preventDefault() if you want to handle this event.
-const OpenUrl = "open-url"
-
-// Event: ‘activate’ macOS
-// Returns:
-//
-// event Event
-// hasVisibleWindows Boolean
-// Emitted when the application is activated, which usually happens when the user clicks on the application’s dock icon.
-//
-// Event: ‘continue-activity’ macOS
-// Returns:
-//
-// event Event
-// type String - A string identifying the activity. Maps to NSUserActivity.activityType.
-// userInfo Object - Contains app-specific state stored by the activity on another device.
-// Emitted during Handoff when an activity from a different device wants to be resumed. You should call event.preventDefault() if you want to handle this event.
-//
-// A user activity can be continued only in an app that has the same developer Team ID as the activity’s source app and that supports the activity’s type. Supported activity types are specified in the app’s Info.plist under the NSUserActivityTypes key.
-const Activate = "activate"
-
-// Event: ‘browser-window-blur’
-// Returns:
-//
-// event Event
-// window BrowserWindow
-// Emitted when a browserWindow gets blurred.
-const BrowserWindowBlur = "browser-window-blur"
-
-// Event: ‘browser-window-focus’
-// Returns:
-//
-// event Event
-// window BrowserWindow
-// Emitted when a browserWindow gets focused.
-const BrowserWindowFocus = "browser-window-focus"
-
-// Event: ‘browser-window-created’
-// Returns:
-//
-// event Event
-// window BrowserWindow
-// Emitted when a new browserWindow is created.
-const BrowserWindowCreated = "browser-window-created"
-
-// Event: ‘web-contents-created’
-// Returns:
-//
-// event Event
-// webContents WebContents
-// Emitted when a new webContents is created.
-const WebContentsCreated = "web-contents-created"
-
-// Event: ‘certificate-error’
-// Returns:
-//
-// event Event
-// webContents WebContents
-// url String
-// error String - The error code
-// certificate Certificate
-// callback Function
-// isTrusted Boolean - Whether to consider the certificate as trusted
-// Emitted when failed to verify the certificate for url, to trust the certificate you should prevent the default behavior with event.preventDefault() and call callback(true).
-const CertificateError = "certificate-error"
-
-// const {app} = require('electron')
-//
-// app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-//   if (url === 'https://github.com') {
-//     // Verification logic.
-//     event.preventDefault()
-//     callback(true)
-//   } else {
-//     callback(false)
-//   }
-// })
-
-// Event: ‘select-client-certificate’
-// Returns:
-//
-// event Event
-// webContents WebContents
-// url URL
-// certificateList Certificate[]
-// callback Function
-// certificate Certificate (optional)
-// Emitted when a client certificate is requested.
-//
-// The url corresponds to the navigation entry requesting the client certificate and callback can be called with an entry filtered from the list. Using event.preventDefault() prevents the application from using the first certificate from the store.
-//
-// const {app} = require('electron')
-//
-// app.on('select-client-certificate', (event, webContents, url, list, callback) => {
-//   event.preventDefault()
-//   callback(list[0])
-// })
-const SelectClientCertificate = "select-client-certificate"
-
-// Event: ‘login’
-// Returns:
-//
-// event Event
-// webContents WebContents
-// request Object
-// method String
-// url URL
-// referrer URL
-// authInfo Object
-// isProxy Boolean
-// scheme String
-// host String
-// port Integer
-// realm String
-// callback Function
-// username String
-// password String
-// Emitted when webContents wants to do basic auth.
-//
-// The default behavior is to cancel all authentications, to override this you should prevent the default behavior with event.preventDefault() and call callback(username, password) with the credentials.
-//
-// const {app} = require('electron')
-//
-// app.on('login', (event, webContents, request, authInfo, callback) => {
-//   event.preventDefault()
-//   callback('username', 'secret')
-// })
-const Login = "login"
-
-// Event: ‘gpu-process-crashed’
-// Returns:
-//
-// event Event
-// killed Boolean
-// Emitted when the gpu process crashes or is killed.
-const GpuProcessCrashed = "gpu-process-crashed"
-
-// Event: ‘accessibility-support-changed’ macOS Windows
-// Returns:
-//
-// event Event
-// accessibilitySupportEnabled Boolean - true when Chrome’s accessibility support is enabled, false otherwise.
-// Emitted when Chrome’s accessibility support changes. This event fires when assistive technologies, such as screen readers, are enabled or disabled. See https://www.chromium.org/developers/design-documents/accessibility for more details.
-const AccessibilitySupportChanged = "accessibility-support-changed"
+const (
+	EvtWillFinishLaunching         = "will-finish-launching"
+	EvtReady                       = "ready"
+	EvtWindowAllClosed             = "window-all-closed"
+	EvtBeforeQuit                  = "before-quit"
+	EvtWillQuit                    = "will-quit"
+	EvtQuit                        = "quit"
+	EvtOpenFile                    = "open-file"
+	EvtOpenURL                     = "open-url"
+	EvtActivate                    = "activate"
+	EvtBrowserWindowBlur           = "browser-window-blur"
+	EvtBrowserWindowFocus          = "browser-window-focus"
+	EvtBrowserWindowCreated        = "browser-window-created"
+	EvtWebContentsCreated          = "web-contents-created"
+	EvtCertificateError            = "certificate-error"
+	EvtSelectClientCertificate     = "select-client-certificate"
+	EvtLogin                       = "login"
+	EvtGpuProcessCrashed           = "gpu-process-crashed"
+	EvtAccessibilitySupportChanged = "accessibility-support-changed"
+)
 
 func GetApp() *App {
 	return app
@@ -301,7 +118,7 @@ type App struct {
 
 	// An example of restarting current instance immediately and adding a new command line argument to the new instance:
 
-	// const {app} = require('electron')
+	//  {app} = require('electron')
 
 	// app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])})
 	// app.exit(0)
@@ -399,7 +216,7 @@ type App struct {
 
 	// Here’s a very simple example of creating a custom Jump List:
 
-	// const {app} = require('electron')
+	//  {app} = require('electron')
 
 	// app.setJumpList([
 	//   {
@@ -470,10 +287,10 @@ type App struct {
 
 	// An example of activating the window of primary instance when a second instance starts:
 
-	// const {app} = require('electron')
+	//  {app} = require('electron')
 	// let myWindow = null
 
-	// const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+	//  shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
 	//   // Someone tried to run a second instance, we should focus our window.
 	//   if (myWindow) {
 	//     if (myWindow.isMinimized()) myWindow.restore()
