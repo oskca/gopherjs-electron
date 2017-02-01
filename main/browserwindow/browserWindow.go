@@ -1,7 +1,9 @@
-package electron
+package browserwindow
 
 import (
 	"github.com/gopherjs/gopherjs/js"
+	electron "github.com/oskca/gopherjs-electron"
+	"github.com/oskca/gopherjs-nodejs/eventemitter"
 )
 
 var (
@@ -133,7 +135,7 @@ const (
 // Emitted on 3-finger swipe. Possible directions are up, right, down, left.
 )
 
-type BrowserWindowOptions struct {
+type Option struct {
 	*js.Object
 	Width                  int         `js:"width"`          //Window's width in pixels. Default is 800
 	Height                 int         `js:"height"`         //Window's height in pixels. Default is 600
@@ -167,8 +169,18 @@ type BrowserWindowOptions struct {
 	NodeIntegration        bool        `js:"nodeIntegration"`
 }
 
+func NewOption() *Option {
+	opt := &Option{
+		Object: js.Global.Get("Object").New(),
+	}
+	opt.Width = 800
+	opt.Height = 600
+	return opt
+}
+
 type BrowserWindow struct {
 	*js.Object
+	*eventemitter.EventEmitter
 	// win.webContents
 	// A WebContents object this window owns. All web page related events and operations will be done via it.
 	// See the webContents documentation for its methods and events.
@@ -632,10 +644,12 @@ type BrowserWindow struct {
 	// Adds a vibrancy effect to the browser window. Passing null or an empty string will remove the vibrancy effect on the window.
 }
 
-func NewBrowserWindow(opts *BrowserWindowOptions) *BrowserWindow {
-	return &BrowserWindow{
+func New(opts *Option) *BrowserWindow {
+	bw := &BrowserWindow{
 		Object: browserWindow.New(opts),
 	}
+	bw.EventEmitter = eventemitter.New(bw.Object)
+	return bw
 }
 
 // Static Methods
@@ -643,7 +657,7 @@ func NewBrowserWindow(opts *BrowserWindowOptions) *BrowserWindow {
 
 // BrowserWindow.getAllWindows()
 // Returns BrowserWindow[] - An array of all opened browser windows.
-func GetAllWindows() []*BrowserWindow {
+func GetAll() []*BrowserWindow {
 	ws := browserWindow.Call("getAllWindows")
 	ret := []*BrowserWindow{}
 	for i := 0; i < ws.Length(); i++ {
@@ -656,13 +670,13 @@ func GetAllWindows() []*BrowserWindow {
 
 // BrowserWindow.getFocusedWindow()
 // Returns BrowserWindow - The window that is focused in this application, otherwise returns null.
-func GetFocusedWindow() *BrowserWindow {
-	fw := browserWindow.Get("getFocusedWindow")
-	if fw.String() == "null" {
+func GetFocused() *BrowserWindow {
+	w := browserWindow.Call("getFocusedWindow")
+	if w.String() == "null" {
 		return nil
 	}
 	return &BrowserWindow{
-		Object: fw,
+		Object: w,
 	}
 }
 
@@ -673,6 +687,15 @@ func GetFocusedWindow() *BrowserWindow {
 // BrowserWindow.fromId(id)
 // id Integer
 // Returns BrowserWindow - The window with the given id.
+func FromId(id int) *BrowserWindow {
+	w := browserWindow.Call("fromId", id)
+	if w.String() == "null" {
+		return nil
+	}
+	return &BrowserWindow{
+		Object: w,
+	}
+}
 
 // BrowserWindow.addDevToolsExtension(path)
 // path String

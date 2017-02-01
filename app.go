@@ -1,30 +1,30 @@
 package electron
 
-import (
-	"github.com/gopherjs/gopherjs/js"
-)
+import "github.com/gopherjs/gopherjs/js"
+import "github.com/oskca/gopherjs-nodejs/eventemitter"
 
 var (
 	app = &App{
-		Object: electron.Get("app"),
+		Object:       Get("app"),
+		EventEmitter: eventemitter.New(Get("app")),
 	}
 )
 
 // Event: ‘will-finish-launching’
 // Emitted when the application has finished basic startup. On Windows and Linux, the will-finish-launching event is the same as the ready event; on macOS, this event represents the applicationWillFinishLaunching notification of NSApplication. You would usually set up listeners for the open-file and open-url events here, and start the crash reporter and auto updater.
-const AppEvtWillFinishLaunching = "will-finish-launching"
+const WillFinishLaunching = "will-finish-launching"
 
 // In most cases, you should just do everything in the ready event handler.
 // Event: ‘ready’
 // Returns:
 // launchInfo Object macOS
 // Emitted when Electron has finished initializing. On macOS, launchInfo holds the userInfo of the NSUserNotification that was used to open the application, if it was launched from Notification Center. You can call app.isReady() to check if this event has already fired.
-const AppEvtReady = "ready"
+const Ready = "ready"
 
 // Event: ‘window-all-closed’
 // Emitted when all windows have been closed.
 // If you do not subscribe to this event and all windows are closed, the default behavior is to quit the app; however, if you subscribe, you control whether the app quits or not. If the user pressed Cmd + Q, or the developer called app.quit(), Electron will first try to close all the windows and then emit the will-quit event, and in this case the window-all-closed event would not be emitted.
-const AppEvtWindowAllClosed = "window-all-closed"
+const WindowAllClosed = "window-all-closed"
 
 // Event: ‘before-quit’
 // Returns:
@@ -32,7 +32,7 @@ const AppEvtWindowAllClosed = "window-all-closed"
 // Emitted before the application starts closing its windows. Calling event.preventDefault() will prevent the default behaviour, which is terminating the application.
 //
 // Note: If application quit was initiated by autoUpdater.quitAndInstall() then before-quit is emitted after emitting close event on all windows and closing them.
-const AppEvtBeforeQuit = "before-quit"
+const BeforeQuit = "before-quit"
 
 // Event: ‘will-quit’
 // Returns:
@@ -40,7 +40,7 @@ const AppEvtBeforeQuit = "before-quit"
 // Emitted when all windows have been closed and the application will quit. Calling event.preventDefault() will prevent the default behaviour, which is terminating the application.
 //
 // See the description of the window-all-closed event for the differences between the will-quit and window-all-closed events.
-const AppEvtWillQuit = "will-quit"
+const WillQuit = "will-quit"
 
 // Event: ‘quit’
 // Returns:
@@ -48,7 +48,7 @@ const AppEvtWillQuit = "will-quit"
 // event Event
 // exitCode Integer
 // Emitted when the application is quitting.
-const AppEvtQuit = "quit"
+const Quit = "quit"
 
 // Event: ‘open-file’ macOS
 // Returns:
@@ -60,7 +60,7 @@ const AppEvtQuit = "quit"
 // You should call event.preventDefault() if you want to handle this event.
 //
 // On Windows, you have to parse process.argv (in the main process) to get the filepath.
-const AppEvtOpenFile = "open-file"
+const OpenFile = "open-file"
 
 // Event: ‘open-url’ macOS
 // Returns:
@@ -70,7 +70,7 @@ const AppEvtOpenFile = "open-file"
 // Emitted when the user wants to open a URL with the application. Your application’s Info.plist file must define the url scheme within the CFBundleURLTypes key, and set NSPrincipalClass to AtomApplication.
 //
 // You should call event.preventDefault() if you want to handle this event.
-const AppEvtOpenUrl = "open-url"
+const OpenUrl = "open-url"
 
 // Event: ‘activate’ macOS
 // Returns:
@@ -88,7 +88,7 @@ const AppEvtOpenUrl = "open-url"
 // Emitted during Handoff when an activity from a different device wants to be resumed. You should call event.preventDefault() if you want to handle this event.
 //
 // A user activity can be continued only in an app that has the same developer Team ID as the activity’s source app and that supports the activity’s type. Supported activity types are specified in the app’s Info.plist under the NSUserActivityTypes key.
-const AppEvtActivate = "activate"
+const Activate = "activate"
 
 // Event: ‘browser-window-blur’
 // Returns:
@@ -96,7 +96,7 @@ const AppEvtActivate = "activate"
 // event Event
 // window BrowserWindow
 // Emitted when a browserWindow gets blurred.
-const AppEvtBrowserWindowBlur = "browser-window-blur"
+const BrowserWindowBlur = "browser-window-blur"
 
 // Event: ‘browser-window-focus’
 // Returns:
@@ -104,7 +104,7 @@ const AppEvtBrowserWindowBlur = "browser-window-blur"
 // event Event
 // window BrowserWindow
 // Emitted when a browserWindow gets focused.
-const AppEvtBrowserWindowFocus = "browser-window-focus"
+const BrowserWindowFocus = "browser-window-focus"
 
 // Event: ‘browser-window-created’
 // Returns:
@@ -112,7 +112,7 @@ const AppEvtBrowserWindowFocus = "browser-window-focus"
 // event Event
 // window BrowserWindow
 // Emitted when a new browserWindow is created.
-const AppEvtBrowserWindowCreated = "browser-window-created"
+const BrowserWindowCreated = "browser-window-created"
 
 // Event: ‘web-contents-created’
 // Returns:
@@ -120,7 +120,7 @@ const AppEvtBrowserWindowCreated = "browser-window-created"
 // event Event
 // webContents WebContents
 // Emitted when a new webContents is created.
-const AppEvtWebContentsCreated = "web-contents-created"
+const WebContentsCreated = "web-contents-created"
 
 // Event: ‘certificate-error’
 // Returns:
@@ -133,7 +133,7 @@ const AppEvtWebContentsCreated = "web-contents-created"
 // callback Function
 // isTrusted Boolean - Whether to consider the certificate as trusted
 // Emitted when failed to verify the certificate for url, to trust the certificate you should prevent the default behavior with event.preventDefault() and call callback(true).
-const AppEvtCertificateError = "certificate-error"
+const CertificateError = "certificate-error"
 
 // const {app} = require('electron')
 //
@@ -166,7 +166,7 @@ const AppEvtCertificateError = "certificate-error"
 //   event.preventDefault()
 //   callback(list[0])
 // })
-const AppEvtSelectClientCertificate = "select-client-certificate"
+const SelectClientCertificate = "select-client-certificate"
 
 // Event: ‘login’
 // Returns:
@@ -196,7 +196,7 @@ const AppEvtSelectClientCertificate = "select-client-certificate"
 //   event.preventDefault()
 //   callback('username', 'secret')
 // })
-const AppEvtLogin = "login"
+const Login = "login"
 
 // Event: ‘gpu-process-crashed’
 // Returns:
@@ -204,7 +204,7 @@ const AppEvtLogin = "login"
 // event Event
 // killed Boolean
 // Emitted when the gpu process crashes or is killed.
-const AppEvtGpuProcessCrashed = "gpu-process-crashed"
+const GpuProcessCrashed = "gpu-process-crashed"
 
 // Event: ‘accessibility-support-changed’ macOS Windows
 // Returns:
@@ -212,7 +212,7 @@ const AppEvtGpuProcessCrashed = "gpu-process-crashed"
 // event Event
 // accessibilitySupportEnabled Boolean - true when Chrome’s accessibility support is enabled, false otherwise.
 // Emitted when Chrome’s accessibility support changes. This event fires when assistive technologies, such as screen readers, are enabled or disabled. See https://www.chromium.org/developers/design-documents/accessibility for more details.
-const AppEvtAccessibilitySupportChanged = "accessibility-support-changed"
+const AccessibilitySupportChanged = "accessibility-support-changed"
 
 func GetApp() *App {
 	return app
@@ -220,6 +220,7 @@ func GetApp() *App {
 
 type App struct {
 	*js.Object
+	*eventemitter.EventEmitter
 	// app.quit()
 	// Try to close all windows. The before-quit event will be emitted first. If all windows are successfully closed, the will-quit event will be emitted and by default the application will terminate.
 	//
