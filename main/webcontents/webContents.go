@@ -27,6 +27,7 @@ import (
 // Render and control the contents of a BrowserWindow instance.
 // Process: Main
 
+// Event for WebContents
 const (
 	EvtDidFinishLoad           = "did-fail-load"
 	EvtDidFailLoad             = "did-fail-load"
@@ -63,6 +64,16 @@ const (
 	EvtDevtoolsReloadPage      = "devtools-reload-page"
 )
 
+// StopFindAction type
+type StopFindAction string
+
+// action const
+const (
+	ActionClearSelection    = StopFindAction("clearSelection")    // clearSelection - Clear the selection.
+	ActionKeepSelection     = StopFindAction("keepSelection")     // keepSelection - Translate the selection into a normal selection.
+	ActionActivateSelection = StopFindAction("activateSelection") // activateSelection - Focus and click the selection node.
+)
+
 // ============================================================================
 // ============================================================================
 
@@ -76,15 +87,18 @@ type WebContents struct {
 	// userAgent String (optional) - A user agent originating the request.
 	// extraHeaders String (optional) - Extra headers separated by “\n”
 	// postData (UploadRawData | UploadFile | UploadFileSystem | UploadBlob)[] - (optional)
-	// Loads the url in the window. The url must contain the protocol prefix, e.g. the http:// or file://. If the load should bypass http cache then use the pragma header to achieve it.
-	LoadURL func(url string) `js:"loadURL"`
+	// Loads the url in the window. The url must contain the protocol prefix, e.g. the http:// or file://.
+	// If the load should bypass http cache then use the pragma header to achieve it.
+	LoadURL   func(url string)           `js:"loadURL"`
+	LoadURLEx func(url string, opt js.M) `js:"loadURL"`
 
 	// const {webContents} = require('electron')
 	// const options = {extraHeaders: 'pragma: no-cache\n'}
 	// webContents.loadURL('https://github.com', options)
 	// contents.downloadURL(url)
 	// url String
-	// Initiates a download of the resource at url without navigating. The will-download event of session will be triggered.
+	// Initiates a download of the resource at url without navigating.
+	// The will-download event of session will be triggered.
 
 	// contents.getURL()
 	// Returns String - The URL of the current web page.
@@ -93,11 +107,12 @@ type WebContents struct {
 	// const {BrowserWindow} = require('electron')
 	// let win = new BrowserWindow({width: 800, height: 600})
 	// win.loadURL('http://github.com')
-
 	// let currentURL = win.webContents.getURL()
 	// console.log(currentURL)
+
 	// contents.getTitle()
 	// Returns String - The title of the current web page.
+	GetTitle func() string `js:"getTitle"`
 
 	// contents.isDestroyed()
 	// Returns Boolean - Whether the web page is destroyed.
@@ -154,38 +169,45 @@ type WebContents struct {
 
 	// contents.goForward()
 	// Makes the browser go forward a web page.
+	GoForward func() `js:"goForward"`
 
 	// contents.goToIndex(index)
 	// index Integer
 	// Navigates browser to the specified absolute web page index.
+	GoToIndex func(index int) `js:"goToIndex"`
 
 	// contents.goToOffset(offset)
 	// offset Integer
 	// Navigates to the specified offset from the “current entry”.
+	GoToOffset func(offset int) `js:"goToOffset"`
 
 	// contents.isCrashed()
 	// Returns Boolean - Whether the renderer process has crashed.
+	IsCrashed func() bool `js:"isCrashed"`
 
 	// contents.setUserAgent(userAgent)
 	// userAgent String
 	// Overrides the user agent for this web page.
+	SetUserAgent func(userAgent string) `js:"setUserAgent"`
 
 	// contents.getUserAgent()
 	// Returns String - The user agent for this web page.
+	GetUserAgent func() string `js:"getUserAgent"`
 
 	// contents.insertCSS(css)
 	// css String
 	// Injects CSS into the current web page.
+	InsertCSS func(css string) `js:"insertCSS"`
 
 	// contents.executeJavaScript(code[, userGesture, callback])
 	// code String
 	// userGesture Boolean (optional)
 	// callback Function (optional) - Called after script has been executed.
 	// result Any
-	// Returns Promise - A promise that resolves with the result of the executed code or is rejected if the result of the code is a rejected promise.
-	ExecuteJavaScript func(code string, userGesture bool) *js.Object `js:"executeJavaScript"`
-
+	// Returns Promise - A promise that resolves with the result of the executed code
+	// or is rejected if the result of the code is a rejected promise.
 	// Evaluates code in page.
+	ExecuteJavaScript func(code string, userGesture bool) *js.Object `js:"executeJavaScript"`
 
 	// In the browser window some HTML APIs like requestFullScreen can only be invoked by a gesture from the user. Setting userGesture to true will remove this limitation.
 
@@ -195,30 +217,41 @@ type WebContents struct {
 	//   .then((result) => {
 	//     console.log(result) // Will be the JSON object from the fetch call
 	//   })
+
 	// contents.setAudioMuted(muted)
 	// muted Boolean
 	// Mute the audio on the current web page.
+	SetAudioMuted func(muted bool) `js:"setAudioMuted"`
 
 	// contents.isAudioMuted()
 	// Returns Boolean - Whether this page has been muted.
+	IsAudioMuted func() bool `js:"isAudioMuted"`
 
 	// contents.setZoomFactor(factor)
 	// factor Number - Zoom factor.
-	// Changes the zoom factor to the specified factor. Zoom factor is zoom percent divided by 100, so 300% = 3.0.
+	// Changes the zoom factor to the specified factor.
+	// Zoom factor is zoom percent divided by 100, so 300% = 3.0.
+	SetZoomFactor func(factor float32) `js:"setZoomFactor"`
 
 	// contents.getZoomFactor(callback)
 	// callback Function
 	// zoomFactor Number
 	// Sends a request to get current zoom factor, the callback will be called with callback(zoomFactor).
+	GetZoomFactor func(cb func(factor float32)) `js:"getZoomFactor"`
 
 	// contents.setZoomLevel(level)
 	// level Number - Zoom level
-	// Changes the zoom level to the specified level. The original size is 0 and each increment above or below represents zooming 20% larger or smaller to default limits of 300% and 50% of original size, respectively.
+	// Changes the zoom level to the specified level.
+	// The original size is 0 and each increment above or below represents zooming 20% larger
+	// or smaller to default limits of 300% and 50% of original size, respectively.
+	SetZoomLevel func(level float32) `js:"setZoomLevel"`
 
 	// contents.getZoomLevel(callback)
 	// callback Function
 	// zoomLevel Number
-	// Sends a request to get current zoom level, the callback will be called with callback(zoomLevel).
+	// Sends a request to get current zoom level,
+	// the callback will be called with callback(zoomLevel).
+	GetZoomLevel func(cb func(zoomLevel float32)) `js:"getZoomLevel"`
 
 	// contents.setZoomLevelLimits(minimumLevel, maximumLevel)
 	// minimumLevel Number
@@ -229,51 +262,65 @@ type WebContents struct {
 	// minimumLevel Number
 	// maximumLevel Number
 	// Sets the maximum and minimum pinch-to-zoom level.
+	SetVisualZoomLevelLimits func(minimumLevel, maximumLevel float32) `js:"setVisualZoomLevelLimits"`
 
 	// contents.setLayoutZoomLevelLimits(minimumLevel, maximumLevel)
 	// minimumLevel Number
 	// maximumLevel Number
 	// Sets the maximum and minimum layout-based (i.e. non-visual) zoom level.
+	SetLayoutZoomLevelLimits func(minimumLevel, maximumLevel float32) `js:"setLayoutZoomLevelLimits"`
 
 	// contents.undo()
 	// Executes the editing command undo in web page.
+	Undo func() `js:"undo"`
 
 	// contents.redo()
 	// Executes the editing command redo in web page.
+	Redo func() `js:"redo"`
 
 	// contents.cut()
 	// Executes the editing command cut in web page.
+	Cut func() `js:"cut"`
 
 	// contents.copy()
 	// Executes the editing command copy in web page.
+	Copy func() `js:"copy"`
 
 	// contents.copyImageAt(x, y)
 	// x Integer
 	// y Integer
 	// Copy the image at the given position to the clipboard.
+	CopyImageAt func(x, y int) `js:"copyImageAt"`
 
 	// contents.paste()
 	// Executes the editing command paste in web page.
+	Paste func() `js:"paste"`
 
 	// contents.pasteAndMatchStyle()
 	// Executes the editing command pasteAndMatchStyle in web page.
+	PasteAndMatchStyle func() `js:"pasteAndMatchStyle"`
 
 	// contents.delete()
 	// Executes the editing command delete in web page.
+	Delete func() `js:"delete"`
 
 	// contents.selectAll()
 	// Executes the editing command selectAll in web page.
+	SelectAll func() `js:"selectAll"`
 
 	// contents.unselect()
 	// Executes the editing command unselect in web page.
+	Unselect func() `js:"unselect"`
 
 	// contents.replace(text)
 	// text String
 	// Executes the editing command replace in web page.
+	Replace func() `js:"replace"`
 
 	// contents.replaceMisspelling(text)
 	// text String
 	// Executes the editing command replaceMisspelling in web page.
+	ReplaceMisspelling func(text string) `js:"replaceMisspelling"`
 
 	// contents.insertText(text)
 	// text String
@@ -287,8 +334,20 @@ type WebContents struct {
 	// findNext Boolean - (optional) Whether the operation is first request or a follow up, defaults to false.
 	// matchCase Boolean - (optional) Whether search should be case-sensitive, defaults to false.
 	// wordStart Boolean - (optional) Whether to look only at the start of words. defaults to false.
-	// medialCapitalAsWordStart Boolean - (optional) When combined with wordStart, accepts a match in the middle of a word if the match begins with an uppercase letter followed by a lowercase or non-letter. Accepts several other intra-word matches, defaults to false.
-	// Starts a request to find all matches for the text in the web page and returns an Integer representing the request id used for the request. The result of the request can be obtained by subscribing to found-in-page event.
+	// medialCapitalAsWordStart Boolean - (optional) When combined with wordStart, accepts a match in
+	// the middle of a word if the match begins with an uppercase letter followed by
+	// a lowercase or non-letter. Accepts several other intra-word matches, defaults to false.
+	// Starts a request to find all matches for the text in the web page and
+	// returns an Integer representing the request id used for the request.
+	// The result of the request can be obtained by subscribing to found-in-page event.
+	// 		const {webContents} = require('electron')
+	// 		webContents.on('found-in-page', (event, result) => {
+	// 		  if (result.finalUpdate) webContents.stopFindInPage('clearSelection')
+	// 		})
+	//
+	// 		const requestId = webContents.findInPage('api')
+	// 		console.log(requestId)
+	FindInPage func(text string, opt ...js.M) (requestId int) `js:"findInPage"`
 
 	// contents.stopFindInPage(action)
 	// action String - Specifies the action to take place when ending [webContents.findInPage] request.
@@ -296,41 +355,44 @@ type WebContents struct {
 	// keepSelection - Translate the selection into a normal selection.
 	// activateSelection - Focus and click the selection node.
 	// Stops any findInPage request for the webContents with the provided action.
+	StopFindInPage func(action StopFindAction) `js:"stopFindInPage"`
 
-	// const {webContents} = require('electron')
-	// webContents.on('found-in-page', (event, result) => {
-	//   if (result.finalUpdate) webContents.stopFindInPage('clearSelection')
-	// })
-
-	// const requestId = webContents.findInPage('api')
-	// console.log(requestId)
 	// contents.capturePage([rect, ]callback)
 	// rect Rectangle (optional) - The area of the page to be captured
 	// callback Function
 	// image NativeImage
-	// Captures a snapshot of the page within rect. Upon completion callback will be called with callback(image). The image is an instance of NativeImage that stores data of the snapshot. Omitting rect will capture the whole visible page.
+	// Captures a snapshot of the page within rect.
+	// Upon completion callback will be called with callback(image).
+	// The image is an instance of NativeImage that stores data of the snapshot.
+	// Omitting rect will capture the whole visible page.
+	CapturePage      func(rect *js.Object, cb func(image *js.Object)) `js:"capturePage"`
+	CaptureWholePage func(cb func(image *js.Object))                  `js:"capturePage"`
 
 	// contents.hasServiceWorker(callback)
 	// callback Function
 	// hasWorker Boolean
 	// Checks if any ServiceWorker is registered and returns a boolean as response to callback.
+	HasServiceWorker func(cb func(hasWorker bool)) `js:"hasServiceWorker"`
 
 	// contents.unregisterServiceWorker(callback)
 	// callback Function
 	// success Boolean
-	// Unregisters any ServiceWorker if present and returns a boolean as response to callback when the JS promise is fulfilled or false when the JS promise is rejected.
+	// Unregisters any ServiceWorker if present and
+	// returns a boolean as response to callback when the JS promise is fulfilled
+	// or false when the JS promise is rejected.
+	UnregisterServiceWorker func(cb func(fulfilled bool)) `js:"unregisterServiceWorker"`
 
 	// contents.print([options])
 	// options Object (optional)
 	// silent Boolean - Don’t ask user for print settings. Default is false.
 	// printBackground Boolean - Also prints the background color and image of the web page. Default is false.
-	// Prints window’s web page. When silent is set to true, Electron will pick up system’s default printer and default settings for printing.
-	Print   func()                   `js:"print"`
-	PrintEx func(options *js.Object) `js:"print"`
-
-	// Calling window.print() in web page is equivalent to calling webContents.print({silent: false, printBackground: false}).
-
+	// Prints window’s web page. When silent is set to true, Electron will pick up system’s
+	// default printer and default settings for printing.
+	// Calling window.print() in web page is equivalent to calling
+	// webContents.print({silent: false, printBackground: false}).
+	//
 	// Use page-break-before: always; CSS style to force to print to a new page.
+	Print func(options ...js.M) `js:"print"`
 
 	// contents.printToPDF(options, callback)
 	// options Object
@@ -343,13 +405,10 @@ type WebContents struct {
 	// error Error
 	// data Buffer
 	// Prints window’s web page as PDF with Chromium’s preview printing custom settings.
-
-	// The callback will be called with callback(error, data) on completion. The data is a Buffer that contains the generated PDF data.
-
+	// The callback will be called with callback(error, data) on completion.
+	// The data is a Buffer that contains the generated PDF data.
 	// The landscape will be ignored if @page CSS at-rule is used in the web page.
-
 	// By default, an empty options will be regarded as:
-
 	// {
 	//   marginsType: 0,
 	//   printBackground: false,
@@ -357,37 +416,41 @@ type WebContents struct {
 	//   landscape: false
 	// }
 	// Use page-break-before: always; CSS style to force to print to a new page.
-
 	// An example of webContents.printToPDF:
+	//
+	//  const {BrowserWindow} = require('electron')
+	//  const fs = require('fs')
+	//
+	//  let win = new BrowserWindow({width: 800, height: 600})
+	//  win.loadURL('http://github.com')
+	//
+	//  win.webContents.on('did-finish-load', () => {
+	//    // Use default printing options
+	//    win.webContents.printToPDF({}, (error, data) => {
+	//      if (error) throw error
+	//      fs.writeFile('/tmp/print.pdf', data, (error) => {
+	//        if (error) throw error
+	//        console.log('Write PDF successfully.')
+	//      })
+	//    })
+	//  })
+	PrintToPDF func(options js.M, cb func(err, data *js.Object)) `js:"printToPDF"`
 
-	// const {BrowserWindow} = require('electron')
-	// const fs = require('fs')
-
-	// let win = new BrowserWindow({width: 800, height: 600})
-	// win.loadURL('http://github.com')
-
-	// win.webContents.on('did-finish-load', () => {
-	//   // Use default printing options
-	//   win.webContents.printToPDF({}, (error, data) => {
-	//     if (error) throw error
-	//     fs.writeFile('/tmp/print.pdf', data, (error) => {
-	//       if (error) throw error
-	//       console.log('Write PDF successfully.')
-	//     })
-	//   })
-	// })
 	// contents.addWorkSpace(path)
 	// path String
 	// Adds the specified path to DevTools workspace. Must be used after DevTools creation:
-
+	//
 	// const {BrowserWindow} = require('electron')
 	// let win = new BrowserWindow()
 	// win.webContents.on('devtools-opened', () => {
 	//   win.webContents.addWorkSpace(__dirname)
 	// })
+	AddWorkSpace func(path string) `js:"addWorkSpace"`
+
 	// contents.removeWorkSpace(path)
 	// path String
 	// Removes the specified path from DevTools workspace.
+	RemoveWorkSpace func(path string) `js:"removeWorkSpace"`
 
 	// contents.openDevTools([options])
 	// options Object (optional)
@@ -401,35 +464,35 @@ type WebContents struct {
 
 	// contents.isDevToolsOpened()
 	// Returns Boolean - Whether the devtools is opened.
+	IsDevToolsOpened func() bool `js:"isDevToolsOpened"`
 
 	// contents.isDevToolsFocused()
 	// Returns Boolean - Whether the devtools view is focused .
+	IsDevToolsFocused func() bool `js:"isDevToolsFocused"`
 
 	// contents.toggleDevTools()
 	// Toggles the developer tools.
+	ToggleDevTools func() `js:"toggleDevTools"`
 
 	// contents.inspectElement(x, y)
 	// x Integer
 	// y Integer
 	// Starts inspecting element at position (x, y).
+	InspectElement func(x, y int) `js:"inspectElement"`
 
 	// contents.inspectServiceWorker()
 	// Opens the developer tools for the service worker context.
+	InspectServiceWorker func() `js:"inspectServiceWorker"`
 
 	// contents.send(channel[, arg1][, arg2][, ...])
 	// channel String
 	// ...args any[]
 	// Send an asynchronous message to renderer process via channel, you can also send arbitrary arguments. Arguments will be serialized in JSON internally and hence no functions or prototype chain will be included.
-	Send func(channel string, args ...interface{}) `js:"send"`
-
 	// The renderer process can handle the message by listening to channel with the ipcRenderer module.
-
 	// An example of sending messages from the main process to the renderer process:
-
 	// // In the main process.
 	// const {app, BrowserWindow} = require('electron')
 	// let win = null
-
 	// app.on('ready', () => {
 	//   win = new BrowserWindow({width: 800, height: 600})
 	//   win.loadURL(`file://${__dirname}/index.html`)
@@ -447,6 +510,8 @@ type WebContents struct {
 	//   </script>
 	// </body>
 	// </html>
+	Send func(channel string, args ...interface{}) `js:"send"`
+
 	// contents.enableDeviceEmulation(parameters)
 	// parameters Object
 	// screenPosition String - Specify the screen type to emulate (default: desktop)
@@ -468,21 +533,23 @@ type WebContents struct {
 	// y Float - Set the y axis offset from top left corner
 	// scale Float - Scale of emulated view inside available space (not in fit to view mode) (default: 1)
 	// Enable device emulation with the given parameters.
+	EnableDeviceEmulation func(parameters js.M) `js:"enableDeviceEmulation"`
 
 	// contents.disableDeviceEmulation()
 	// Disable device emulation enabled by webContents.enableDeviceEmulation.
+	DisableDeviceEmulation func() `js:"disableDeviceEmulation"`
 
 	// contents.sendInputEvent(event)
 	// event Object
 	// type String (required) - The type of the event, can be mouseDown, mouseUp, mouseEnter, mouseLeave, contextMenu, mouseWheel, mouseMove, keyDown, keyUp, char.
 	// modifiers String[] - An array of modifiers of the event, can include shift, control, alt, meta, isKeypad, isAutoRepeat, leftButtonDown, middleButtonDown, rightButtonDown, capsLock, numLock, left, right.
 	// Sends an input event to the page.
-
+	//
 	// For keyboard events, the event object also have following properties:
-
+	//
 	// keyCode String (required) - The character that will be sent as the keyboard event. Should only use the valid key codes in Accelerator.
 	// For mouse events, the event object also have following properties:
-
+	//
 	// x Integer (required)
 	// y Integer (required)
 	// button String - The button pressed, can be left, middle, right
@@ -491,8 +558,9 @@ type WebContents struct {
 	// movementX Integer
 	// movementY Integer
 	// clickCount Integer
+	//
 	// For the mouseWheel event, the event object also have following properties:
-
+	//
 	// deltaX Integer
 	// deltaY Integer
 	// wheelTicksX Integer
@@ -506,20 +574,27 @@ type WebContents struct {
 	// callback Function
 	// frameBuffer Buffer
 	// dirtyRect Rectangle
-	// Begin subscribing for presentation events and captured frames, the callback will be called with callback(frameBuffer, dirtyRect) when there is a presentation event.
-
+	// Begin subscribing for presentation events and captured frames,
+	// the callback will be called with callback(frameBuffer, dirtyRect) when there is a presentation event.
+	//
 	// The frameBuffer is a Buffer that contains raw pixel data. On most machines, the pixel data is effectively stored in 32bit BGRA format, but the actual representation depends on the endianness of the processor (most modern processors are little-endian, on machines with big-endian processors the data is in 32bit ARGB format).
-
+	//
 	// The dirtyRect is an object with x, y, width, height properties that describes which part of the page was repainted. If onlyDirty is set to true, frameBuffer will only contain the repainted area. onlyDirty defaults to false.
+	// contents.sendInputEvent(event)
+	SendInputEvent func(event *js.Object) `js:"sendInputEvent"`
 
 	// contents.endFrameSubscription()
 	// End subscribing for frame presentation events.
+	EndFrameSubscription func() `js:"endFrameSubscription"`
 
 	// contents.startDrag(item)
 	// item Object
 	// file String
 	// icon NativeImage
-	// Sets the item as dragging item for current drag-drop operation, file is the absolute path of the file to be dragged, and icon is the image showing under the cursor when dragging.
+	// Sets the item as dragging item for current drag-drop operation,
+	// file is the absolute path of the file to be dragged,
+	// and icon is the image showing under the cursor when dragging.
+	StartDrag func(item *js.Object) `js:"startDrag"`
 
 	// contents.savePage(fullPath, saveType, callback)
 	// fullPath String - The full file path.
@@ -530,12 +605,12 @@ type WebContents struct {
 	// callback Function - (error) => {}.
 	// error Error
 	// Returns true if the process of saving page has been initiated successfully.
-
+	//
 	// const {BrowserWindow} = require('electron')
 	// let win = new BrowserWindow()
-
+	//
 	// win.loadURL('https://github.com')
-
+	//
 	// win.webContents.on('did-finish-load', () => {
 	//   win.webContents.savePage('/tmp/test.html', 'HTMLComplete', (error) => {
 	//     if (!error) console.log('Save page successfully')
@@ -543,35 +618,43 @@ type WebContents struct {
 	// })
 	// contents.showDefinitionForSelection() macOS
 	// Shows pop-up dictionary that searches the selected word on the page.
+	SavePage func(fullPath, saveType string, callback func(err *js.Object)) `js:"savePage"`
 
 	// contents.setSize(options)
 	// Set the size of the page. This is only supported for <webview> guest contents.
-
+	//
 	// options Object
 	// normal Object (optional) - Normal size of the page. This can be used in combination with the disableguestresize attribute to manually resize the webview guest contents.
 	// width Integer
 	// height Integer
 	// contents.isOffscreen()
 	// Returns Boolean - Indicates whether offscreen rendering is enabled.
+	SetSize func(options *js.Object) `js:"setSize"`
 
 	// contents.startPainting()
 	// If offscreen rendering is enabled and not painting, start painting.
+	StartPainting func() `js:"startPainting"`
 
 	// contents.stopPainting()
 	// If offscreen rendering is enabled and painting, stop painting.
+	StopPainting func() `js:"stopPainting"`
 
 	// contents.isPainting()
 	// Returns Boolean - If offscreen rendering is enabled returns whether it is currently painting.
+	IsPainting func() bool `js:"isPainting"`
 
 	// contents.setFrameRate(fps)
 	// fps Integer
 	// If offscreen rendering is enabled sets the frame rate to the specified number. Only values between 1 and 60 are accepted.
+	SetFrameRate func(fps int) `js:"setFrameRate"`
 
 	// contents.getFrameRate()
 	// Returns Integer - If offscreen rendering is enabled returns the current frame rate.
+	GetFrameRate func() int `js:"getFrameRate"`
 
 	// contents.invalidate()
 	// If offscreen rendering is enabled invalidates the frame and generates a new one through the 'paint' event.
+	Invalidate func() `js:"invalidate"`
 
 	// ======================================================================
 	// ======================================================================
