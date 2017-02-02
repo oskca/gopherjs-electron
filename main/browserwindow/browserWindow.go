@@ -183,7 +183,8 @@ type BrowserWindow struct {
 	*js.Object
 	*eventemitter.EventEmitter
 	// win.webContents
-	// A WebContents object this window owns. All web page related events and operations will be done via it.
+	// A WebContents object this window owns. All web page related events and
+	// operations will be done via it.
 	// See the webContents documentation for its methods and events.
 	WebContents *webcontents.WebContents `js:"webContents"`
 
@@ -197,64 +198,84 @@ type BrowserWindow struct {
 	// Note: Some methods are only available on specific operating systems and are labeled as such.
 
 	// win.destroy()
-	// Force closing the window, the unload and beforeunload event won’t be emitted for the web page, and close event will also not be emitted for this window, but it guarantees the closed event will be emitted.
+	// Force closing the window, the unload and beforeunload event won’t be emitted for
+	// the web page, and close event will also not be emitted for this window,
+	// but it guarantees the closed event will be emitted.
 	Destroy func() `js:"destroy"`
 
 	// win.close()
-	// Try to close the window. This has the same effect as a user manually clicking the close button of the window. The web page may cancel the close though. See the close event.
+	// Try to close the window. This has the same effect as a user manually clicking the
+	// close button of the window. The web page may cancel the close though. See the close event.
 	Close func() `js:"close"`
 
 	// win.focus()
 	// Focuses on the window.
+	Focus func() `js:"focus"`
 
 	// win.blur()
 	// Removes focus from the window.
+	Blur func() `js:"blur"`
 
 	// win.isFocused()
 	// Returns Boolean - Whether the window is focused.
+	IsFocused func() bool `js:"isFocused"`
 
 	// win.isDestroyed()
 	// Returns Boolean - Whether the window is destroyed.
+	IsDestroyed func() bool `js:"isDestroyed"`
 
 	// win.show()
 	// Shows and gives focus to the window.
+	Show func() `js:"show"`
 
 	// win.showInactive()
 	// Shows the window but doesn’t focus on it.
+	ShowInactive func() `js:"showInactive"`
 
 	// win.hide()
 	// Hides the window.
+	Hide func() `js:"hide"`
 
 	// win.isVisible()
 	// Returns Boolean - Whether the window is visible to the user.
+	IsVisible func() bool `js:"isVisible"`
 
 	// win.isModal()
 	// Returns Boolean - Whether current window is a modal window.
+	IsModal func() bool `js:"isModal"`
 
 	// win.maximize()
 	// Maximizes the window.
+	Maximize func() `js:"maximize"`
 
 	// win.unmaximize()
 	// Unmaximizes the window.
+	Unmaximize func() `js:"unmaximize"`
 
 	// win.isMaximized()
 	// Returns Boolean - Whether the window is maximized.
+	IsMaximized func() bool `js:"isMaximized"`
 
 	// win.minimize()
 	// Minimizes the window. On some platforms the minimized window will be shown in the Dock.
+	Minimize func() `js:"minimize"`
 
 	// win.restore()
 	// Restores the window from minimized state to its previous state.
+	Restore func() `js:"restore"`
 
 	// win.isMinimized()
 	// Returns Boolean - Whether the window is minimized.
+	IsMinimized func() bool `js:"isMinimized"`
 
 	// win.setFullScreen(flag)
 	// flag Boolean
 	// Sets whether the window should be in fullscreen mode.
+	SetFullScreen func(flag bool) `js:"setFullScreen"`
 
 	// win.isFullScreen()
 	// Returns Boolean - Whether the window is in fullscreen mode.
+	IsFullScreen func() bool `js:"isFullScreen"`
 
 	// win.setAspectRatio(aspectRatio[, extraSize]) macOS
 	// aspectRatio Float - The aspect ratio to maintain for some portion of the content view.
@@ -262,13 +283,15 @@ type BrowserWindow struct {
 	// width Integer
 	// height Integer
 	// This will make a window maintain an aspect ratio. The extra size allows a developer to have space, specified in pixels, not included within the aspect ratio calculations. This API already takes into account the difference between a window’s size and its content size.
-
+	//
 	// Consider a normal window with an HD video player and associated controls. Perhaps there are 15 pixels of controls on the left edge, 25 pixels of controls on the right edge and 50 pixels of controls below the player. In order to maintain a 16:9 aspect ratio (standard aspect ratio for HD @1920x1080) within the player itself we would call this function with arguments of 16/9 and [ 40, 50 ]. The second argument doesn’t care where the extra width and height are within the content view–only that they exist. Just sum any extra width and height areas you have within the overall content view.
+	SetAspectRatio func(aspectRatio float64, extraSize ...*js.Object) `js:"setAspectRatio"`
 
 	// win.previewFile(path[, displayName]) macOS
 	// path String - The absolute path to the file to preview with QuickLook. This is important as Quick Look uses the file name and file extension on the path to determine the content type of the file to open.
 	// displayName String (Optional) - The name of the file to display on the Quick Look modal view. This is purely visual and does not affect the content type of the file. Defaults to path.
 	// Uses Quick Look to preview a file at a given path.
+	// PreviewFile func(path string, displayName ...string) `js:"previewFile"`
 
 	// win.closeFilePreview() macOS
 	// Closes the currently open Quick Look panel.
@@ -294,50 +317,61 @@ type BrowserWindow struct {
 	// height Integer
 	// animate Boolean (optional) macOS
 	// Resizes the window to width and height.
+	SetSize func(width, height int, animate ...bool) `js:"setSize"`
 
 	// win.getSize()
 	// Returns Integer[] - Contains the window’s width and height.
+	GetSize func() []int `js:"setSize"`
 
 	// win.setContentSize(width, height[, animate])
 	// width Integer
 	// height Integer
 	// animate Boolean (optional) macOS
 	// Resizes the window’s client area (e.g. the web page) to width and height.
+	SetContentSize func(width, height int, animate ...bool) `js:"setContentSize"`
 
 	// win.getContentSize()
 	// Returns Integer[] - Contains the window’s client area’s width and height.
+	GetContentSize func() []int `js:"getContentSize"`
 
 	// win.setMinimumSize(width, height)
 	// width Integer
 	// height Integer
 	// Sets the minimum size of window to width and height.
+	SetMinimumSize func(width, height int) `js:"setMinimumSize"`
 
 	// win.getMinimumSize()
 	// Returns Integer[] - Contains the window’s minimum width and height.
+	GetMinimumSize func() []int `js:"getMinimumSize"`
 
 	// win.setMaximumSize(width, height)
 	// width Integer
 	// height Integer
 	// Sets the maximum size of window to width and height.
+	SetMaximumSize func(width, height int) `js:"setMaximumSize"`
 
 	// win.getMaximumSize()
 	// Returns Integer[] - Contains the window’s maximum width and height.
+	GetMaximumSize func() []int `js:"getMaximumSize"`
 
 	// win.setResizable(resizable)
 	// resizable Boolean
 	// Sets whether the window can be manually resized by user.
+	SetResizable func(resizable bool) `js:"setResizable"`
 
 	// win.isResizable()
 	// Returns Boolean - Whether the window can be manually resized by user.
+	IsResizable func() bool `js:"isResizable"`
 
 	// win.setMovable(movable) macOS Windows
 	// movable Boolean
 	// Sets whether the window can be moved by user. On Linux does nothing.
+	SetMovable func(movable bool) `js:"setMovable"`
 
 	// win.isMovable() macOS Windows
 	// Returns Boolean - Whether the window can be moved by user.
-
 	// On Linux always returns true.
+	IsMovable func() bool `js:"isMovable"`
 
 	// win.setMinimizable(minimizable) macOS Windows
 	// minimizable Boolean
@@ -345,7 +379,6 @@ type BrowserWindow struct {
 
 	// win.isMinimizable() macOS Windows
 	// Returns Boolean - Whether the window can be manually minimized by user
-
 	// On Linux always returns true.
 
 	// win.setMaximizable(maximizable) macOS Windows
@@ -360,9 +393,11 @@ type BrowserWindow struct {
 	// win.setFullScreenable(fullscreenable)
 	// fullscreenable Boolean
 	// Sets whether the maximize/zoom window button toggles fullscreen mode or maximizes the window.
+	SetFullScreenable func(fullscreenable bool) `js:"setFullScreenable"`
 
 	// win.isFullScreenable()
 	// Returns Boolean - Whether the maximize/zoom window button toggles fullscreen mode or maximizes the window.
+	IsFullScreenable func() bool `js:"isFullScreenable"`
 
 	// win.setClosable(closable) macOS Windows
 	// closable Boolean
@@ -370,7 +405,6 @@ type BrowserWindow struct {
 
 	// win.isClosable() macOS Windows
 	// Returns Boolean - Whether the window can be manually closed by user.
-
 	// On Linux always returns true.
 
 	// win.setAlwaysOnTop(flag[, level])
@@ -383,22 +417,27 @@ type BrowserWindow struct {
 
 	// win.center()
 	// Moves window to the center of the screen.
+	Center func() `js:"center"`
 
 	// win.setPosition(x, y[, animate])
 	// x Integer
 	// y Integer
 	// animate Boolean (optional) macOS
 	// Moves window to x and y.
+	SetPosition func(x, y int, animate ...bool) `js:"setPosition"`
 
 	// win.getPosition()
 	// Returns Integer[] - Contains the window’s current position.
+	GetPosition func() []int `js:"getPosition"`
 
 	// win.setTitle(title)
 	// title String
 	// Changes the title of native window to title.
+	SetTitle func(title string) `js:"SetTitle"`
 
 	// win.getTitle()
 	// Returns String - The title of the native window.
+	GetTitle func() string `js:"getTitle"`
 
 	// Note: The title of web page can be different from the title of the native window.
 
@@ -419,18 +458,21 @@ type BrowserWindow struct {
 	// win.setSkipTaskbar(skip)
 	// skip Boolean
 	// Makes the window not show in the taskbar.
+	SetSkipTaskbar func(skip bool) `js:"setSkipTaskbar"`
 
 	// win.setKiosk(flag)
 	// flag Boolean
 	// Enters or leaves the kiosk mode.
+	SetKiosk func(flag bool) `js:"setKiosk"`
 
 	// win.isKiosk()
 	// Returns Boolean - Whether the window is in kiosk mode.
+	IsKiosk func() bool `js:"isKiosk"`
 
 	// win.getNativeWindowHandle()
 	// Returns Buffer - The platform-specific handle of the window.
-
 	// The native type of the handle is HWND on Windows, NSView* on macOS, and Window (unsigned long) on Linux.
+	GetNativeWindowHandle func() *js.Object `js:"getNativeWindowHandle"`
 
 	// win.hookWindowMessage(message, callback) Windows
 	// message Integer
@@ -501,24 +543,26 @@ type BrowserWindow struct {
 	// })
 	// win.reload()
 	// Same as webContents.reload.
-	LoadURL   func(url string)                  `js:"loadURL"`
-	LoadURLEx func(url string, opts *js.Object) `js:"loadURL"`
+	LoadURL func(url string, opts ...*js.Object) `js:"loadURL"`
 
 	// win.setMenu(menu) Linux Windows
 	// menu Menu
 	// Sets the menu as the window’s menu bar, setting it to null will remove the menu bar.
+	SetMenu func(menu *js.Object) `js:"setMenu"`
 
 	// win.setProgressBar(progress[, options])
 	// progress Double
 	// options Object (optional)
 	// mode String Windows - Mode for the progress bar. Can be none, normal, indeterminate, error, or paused.
 	// Sets progress value in progress bar. Valid range is [0, 1.0].
-
 	// Remove progress bar when progress < 0; Change to indeterminate mode when progress > 1.
-
-	// On Linux platform, only supports Unity desktop environment, you need to specify the *.desktop file name to desktopName field in package.json. By default, it will assume app.getName().desktop.
-
-	// On Windows, a mode can be passed. Accepted values are none, normal, indeterminate, error, and paused. If you call setProgressBar without a mode set (but with a value within the valid range), normal will be assumed.
+	// On Linux platform, only supports Unity desktop environment,
+	// 	you need to specify the *.desktop file name to desktopName field in
+	// 	package.json. By default, it will assume app.getName().desktop.
+	// On Windows, a mode can be passed. Accepted values are none, normal, indeterminate, error, and paused.
+	// 	If you call setProgressBar without a mode set (but with a value within the valid range),
+	// 	normal will be assumed.
+	SetProgressBar func(progress float64, opts ...*js.Object) `js:"setProgressBar"`
 
 	// win.setOverlayIcon(overlay, description) Windows
 	// overlay NativeImage - the icon to display on the bottom right corner of the taskbar icon. If this parameter is null, the overlay is cleared
@@ -537,33 +581,34 @@ type BrowserWindow struct {
 	// win.setThumbarButtons(buttons) Windows
 	// buttons ThumbarButton[]
 	// Returns Boolean - Whether the buttons were added successfully
-
-	// Add a thumbnail toolbar with a specified set of buttons to the thumbnail image of a window in a taskbar button layout. Returns a Boolean object indicates whether the thumbnail has been added successfully.
-
+	// Add a thumbnail toolbar with a specified set of buttons to the thumbnail image of a window in
+	// a taskbar button layout.
+	// Returns a Boolean object indicates whether the thumbnail has been added successfully.
 	// The number of buttons in thumbnail toolbar should be no greater than 7 due to the limited room. Once you setup the thumbnail toolbar, the toolbar cannot be removed due to the platform’s limitation. But you can call the API with an empty array to clean the buttons.
-
 	// The buttons is an array of Button objects:
+	// 	Button Object
+	// 	icon NativeImage - The icon showing in thumbnail toolbar.
+	// 	click Function
+	// 	tooltip String (optional) - The text of the button’s tooltip.
+	// 	flags String[] (optional) - Control specific states and behaviors of the button. By default, it is ['enabled'].
+	// 	The flags is an array that can include following Strings:
+	// 		enabled - The button is active and available to the user.
+	// 		disabled - The button is disabled. It is present, but has a visual state indicating it will not respond to user action.
+	// 		dismissonclick - When the button is clicked, the thumbnail window closes immediately.
+	// 		nobackground - Do not draw a button border, use only the image.
+	// 		hidden - The button is not shown to the user.
+	// 		noninteractive - The button is enabled but not interactive; no pressed button state is drawn. This value is intended for instances where the button is used in a notification.
+	SetThumbarButtons func(buttons []*js.Object) bool `js:"setThumbarButtons"`
 
-	// Button Object
-	// icon NativeImage - The icon showing in thumbnail toolbar.
-	// click Function
-	// tooltip String (optional) - The text of the button’s tooltip.
-	// flags String[] (optional) - Control specific states and behaviors of the button. By default, it is ['enabled'].
-	// The flags is an array that can include following Strings:
-
-	// enabled - The button is active and available to the user.
-	// disabled - The button is disabled. It is present, but has a visual state indicating it will not respond to user action.
-	// dismissonclick - When the button is clicked, the thumbnail window closes immediately.
-	// nobackground - Do not draw a button border, use only the image.
-	// hidden - The button is not shown to the user.
-	// noninteractive - The button is enabled but not interactive; no pressed button state is drawn. This value is intended for instances where the button is used in a notification.
 	// win.setThumbnailClip(region) Windows
 	// region Rectangle - Region of the window
 	// Sets the region of the window to show as the thumbnail image displayed when hovering over the window in the taskbar. You can reset the thumbnail to be the entire window by specifying an empty region: {x: 0, y: 0, width: 0, height: 0}.
+	SetThumbnailClip func(region *js.Object) bool `js:"setThumbnailClip"`
 
 	// win.setThumbnailToolTip(toolTip) Windows
 	// toolTip String
 	// Sets the toolTip that is displayed when hovering over the window thumbnail in the taskbar.
+	SetThumbnailToolTip func(toolTip string) bool `js:"setThumbnailToolTip"`
 
 	// win.setAppDetails(options) Windows
 	// options Object
@@ -582,6 +627,7 @@ type BrowserWindow struct {
 	// win.setIcon(icon) Windows Linux
 	// icon NativeImage
 	// Changes window icon.
+	SetIcon func(icon *js.Object) bool `js:"setIcon"`
 
 	// win.setAutoHideMenuBar(hide)
 	// hide Boolean

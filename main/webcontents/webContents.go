@@ -231,27 +231,27 @@ type WebContents struct {
 	// factor Number - Zoom factor.
 	// Changes the zoom factor to the specified factor.
 	// Zoom factor is zoom percent divided by 100, so 300% = 3.0.
-	SetZoomFactor func(factor float32) `js:"setZoomFactor"`
+	SetZoomFactor func(factor float64) `js:"setZoomFactor"`
 
 	// contents.getZoomFactor(callback)
 	// callback Function
 	// zoomFactor Number
 	// Sends a request to get current zoom factor, the callback will be called with callback(zoomFactor).
-	GetZoomFactor func(cb func(factor float32)) `js:"getZoomFactor"`
+	GetZoomFactor func(cb func(factor float64)) `js:"getZoomFactor"`
 
 	// contents.setZoomLevel(level)
 	// level Number - Zoom level
 	// Changes the zoom level to the specified level.
 	// The original size is 0 and each increment above or below represents zooming 20% larger
 	// or smaller to default limits of 300% and 50% of original size, respectively.
-	SetZoomLevel func(level float32) `js:"setZoomLevel"`
+	SetZoomLevel func(level float64) `js:"setZoomLevel"`
 
 	// contents.getZoomLevel(callback)
 	// callback Function
 	// zoomLevel Number
 	// Sends a request to get current zoom level,
 	// the callback will be called with callback(zoomLevel).
-	GetZoomLevel func(cb func(zoomLevel float32)) `js:"getZoomLevel"`
+	GetZoomLevel func(cb func(zoomLevel float64)) `js:"getZoomLevel"`
 
 	// contents.setZoomLevelLimits(minimumLevel, maximumLevel)
 	// minimumLevel Number
@@ -262,13 +262,13 @@ type WebContents struct {
 	// minimumLevel Number
 	// maximumLevel Number
 	// Sets the maximum and minimum pinch-to-zoom level.
-	SetVisualZoomLevelLimits func(minimumLevel, maximumLevel float32) `js:"setVisualZoomLevelLimits"`
+	SetVisualZoomLevelLimits func(minimumLevel, maximumLevel float64) `js:"setVisualZoomLevelLimits"`
 
 	// contents.setLayoutZoomLevelLimits(minimumLevel, maximumLevel)
 	// minimumLevel Number
 	// maximumLevel Number
 	// Sets the maximum and minimum layout-based (i.e. non-visual) zoom level.
-	SetLayoutZoomLevelLimits func(minimumLevel, maximumLevel float32) `js:"setLayoutZoomLevelLimits"`
+	SetLayoutZoomLevelLimits func(minimumLevel, maximumLevel float64) `js:"setLayoutZoomLevelLimits"`
 
 	// contents.undo()
 	// Executes the editing command undo in web page.
@@ -454,7 +454,9 @@ type WebContents struct {
 
 	// contents.openDevTools([options])
 	// options Object (optional)
-	// mode String - Opens the devtools with specified dock state, can be right, bottom, undocked, detach. Defaults to last used dock state. In undocked mode it’s possible to dock back. In detach mode it’s not.
+	// mode String - Opens the devtools with specified dock state, can be
+	// 	right, bottom, undocked, detach. Defaults to last used dock state.
+	// 	In undocked mode it’s possible to dock back. In detach mode it’s not.
 	// Opens the devtools.
 	OpenDevTools func() `js:"openDevTools"`
 
@@ -487,7 +489,8 @@ type WebContents struct {
 	// contents.send(channel[, arg1][, arg2][, ...])
 	// channel String
 	// ...args any[]
-	// Send an asynchronous message to renderer process via channel, you can also send arbitrary arguments. Arguments will be serialized in JSON internally and hence no functions or prototype chain will be included.
+	// Send an asynchronous message to renderer process via channel, you can also send arbitrary arguments.
+	// Arguments will be serialized in JSON internally and hence no functions or prototype chain will be included.
 	// The renderer process can handle the message by listening to channel with the ipcRenderer module.
 	// An example of sending messages from the main process to the renderer process:
 	// // In the main process.
