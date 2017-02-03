@@ -3,6 +3,7 @@ package browserwindow
 import (
 	"github.com/gopherjs/gopherjs/js"
 	electron "github.com/oskca/gopherjs-electron"
+	"github.com/oskca/gopherjs-electron/main/menu"
 	"github.com/oskca/gopherjs-electron/main/webcontents"
 	"github.com/oskca/gopherjs-nodejs/eventemitter"
 )
@@ -548,7 +549,7 @@ type BrowserWindow struct {
 	// win.setMenu(menu) Linux Windows
 	// menu Menu
 	// Sets the menu as the window’s menu bar, setting it to null will remove the menu bar.
-	SetMenu func(menu *js.Object) `js:"setMenu"`
+	SetMenu func(m *menu.Menu) `js:"setMenu"`
 
 	// win.setProgressBar(progress[, options])
 	// progress Double
