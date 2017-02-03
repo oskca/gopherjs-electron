@@ -5,8 +5,8 @@ import (
 
 	"github.com/gopherjs/gopherjs/js"
 	electron "github.com/oskca/gopherjs-electron"
-	"github.com/oskca/gopherjs-electron/main/browserwindow"
-	"github.com/oskca/gopherjs-electron/main/menu"
+	"github.com/oskca/gopherjs-electron/api/main/browserwindow"
+	"github.com/oskca/gopherjs-electron/api/main/menu"
 	nodejs "github.com/oskca/gopherjs-nodejs"
 )
 

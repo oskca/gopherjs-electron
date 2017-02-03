@@ -3,8 +3,8 @@ package browserwindow
 import (
 	"github.com/gopherjs/gopherjs/js"
 	electron "github.com/oskca/gopherjs-electron"
-	"github.com/oskca/gopherjs-electron/main/menu"
-	"github.com/oskca/gopherjs-electron/main/webcontents"
+	"github.com/oskca/gopherjs-electron/api/main/menu"
+	"github.com/oskca/gopherjs-electron/api/main/webcontents"
 	"github.com/oskca/gopherjs-nodejs/eventemitter"
 )
 

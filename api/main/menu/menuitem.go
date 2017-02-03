@@ -2,7 +2,7 @@ package menu
 
 import (
 	"github.com/gopherjs/gopherjs/js"
-	"github.com/oskca/gopherjs-electron/allprocess/nativeimage"
+	"github.com/oskca/gopherjs-electron/api/allprocess/nativeimage"
 )
 
 // Item types
