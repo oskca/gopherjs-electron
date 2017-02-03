@@ -27,7 +27,7 @@ func main() {
 			{
 				Label: "Show &Help",
 				ClickEx: func(mi *menu.Item) {
-					println(time.Now().String(), "clicked:", mi.Click)
+					println(time.Now().String(), "clicked:", mi.Label)
 				},
 			},
 			{
@@ -48,8 +48,8 @@ func main() {
 				SubMenuOptions: []menu.Option{
 					{
 						Label: "sub option",
-						Click: func() {
-							println("sub option called")
+						ClickEx: func(mi *menu.Item) {
+							println(mi.Label, "==> called")
 						},
 					},
 				},
