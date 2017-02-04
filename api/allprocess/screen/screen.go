@@ -5,7 +5,10 @@
 // so writing let {screen} = require('electron') will not work.
 package screen
 
-import electron "github.com/oskca/gopherjs-electron"
+import (
+	electron "github.com/oskca/gopherjs-electron"
+	"github.com/oskca/gopherjs-electron/api"
+)
 
 var screen = electron.Get("screen")
 
@@ -81,28 +84,28 @@ const (
 // x Integer
 // y Integer
 // The current absolute position of the mouse pointer.
-func GetCursorScreenPoint() *electron.Point {
-	return &electron.Point{
+func GetCursorScreenPoint() *api.Point {
+	return &api.Point{
 		Object: screen.Call("getCursorScreenPoint"),
 	}
 }
 
 // screen.getPrimaryDisplay()
 // Returns Display - The primary display.
-func GetPrimaryDisplay() *electron.Display {
-	return &electron.Display{
+func GetPrimaryDisplay() *api.Display {
+	return &api.Display{
 		Object: screen.Call("getPrimaryDisplay"),
 	}
 }
 
 // screen.getAllDisplays()
 // Returns Display[] - An array of displays that are currently available.
-func GetAllDisplays() []*electron.Display {
-	ret := []*electron.Display{}
+func GetAllDisplays() []*api.Display {
+	ret := []*api.Display{}
 	s := screen.Call("getAllDisplays")
 	for index := 0; index < s.Length(); index++ {
 		o := s.Index(index)
-		ret = append(ret, &electron.Display{
+		ret = append(ret, &api.Display{
 			Object: o,
 		})
 	}
@@ -114,8 +117,8 @@ func GetAllDisplays() []*electron.Display {
 // x Integer
 // y Integer
 // Returns Display - The display nearest the specified point.
-func GetDisplayNearestPoint() *electron.Point {
-	return &electron.Point{
+func GetDisplayNearestPoint() *api.Point {
+	return &api.Point{
 		Object: screen.Call("getDisplayNearestPoint"),
 	}
 }
@@ -123,8 +126,8 @@ func GetDisplayNearestPoint() *electron.Point {
 // screen.getDisplayMatching(rect)
 // rect Rectangle
 // Returns Display - The display that most closely intersects the provided bounds.
-func GetDisplayMatching(rect *electron.Rect) *electron.Display {
-	return &electron.Display{
+func GetDisplayMatching(rect *api.Rect) *api.Display {
+	return &api.Display{
 		Object: screen.Call("getDisplayMatching", rect),
 	}
 }
