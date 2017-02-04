@@ -9,7 +9,7 @@ package ipc
 import (
 	"github.com/gopherjs/gopherjs/js"
 	electron "github.com/oskca/gopherjs-electron"
-	"github.com/oskca/gopherjs-electron/api"
+	"github.com/oskca/gopherjs-electron/api/main/webcontents"
 	"github.com/oskca/gopherjs-nodejs/eventemitter"
 )
 
@@ -17,6 +17,23 @@ type IPC struct {
 	*js.Object
 	*eventemitter.EventEmitter
 }
+
+// Event is usd in IPC
+type Event struct {
+	*js.Object
+	// Event object
+	// The event object passed to the callback has the following methods:
+	// event.returnValue
+	// Set this to the value to be returned in a synchronous message.
+	ReturnValue interface{} `js:"returnValue"`
+
+	// event.sender
+	// Returns the webContents that sent the message, you can call event.sender.send to reply to the asynchronous message, see webContents.send for more information.
+	Sender *webcontents.WebContents `js:"sender"`
+}
+
+// Listener is used in ipc
+type Listener func(evt *Event, args ...*js.Object)
 
 func newIPC(obj *js.Object) *IPC {
 	ipc := new(IPC)
@@ -47,7 +64,7 @@ func Renderer() *IPC {
 // channel String
 // listener Function
 // Listens to channel, when a new message arrives listener would be called with listener(event, args...).
-func (ipc *IPC) On(channel string, listener api.IpcListener) {
+func (ipc *IPC) On(channel string, listener Listener) {
 	ipc.Call("on", channel, listener)
 }
 
@@ -55,7 +72,7 @@ func (ipc *IPC) On(channel string, listener api.IpcListener) {
 // channel String
 // listener Function
 // Adds a one time listener function for the event. This listener is invoked only the next time a message is sent to channel, after which it is removed.
-func (ipc *IPC) Once(channel string, listener api.IpcListener) {
+func (ipc *IPC) Once(channel string, listener Listener) {
 	ipc.Call("once", channel, listener)
 }
 
@@ -63,7 +80,7 @@ func (ipc *IPC) Once(channel string, listener api.IpcListener) {
 // channel String
 // listener Function
 // Removes the specified listener from the listener array for the specified channel.
-func (ipc *IPC) RemoveListener(channel string, listener api.IpcListener) {
+func (ipc *IPC) RemoveListener(channel string, listener Listener) {
 	ipc.Call("removeListener", channel, listener)
 }
 

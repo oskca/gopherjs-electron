@@ -1,9 +1,6 @@
 package api
 
-import (
-	"github.com/gopherjs/gopherjs/js"
-	"github.com/oskca/gopherjs-electron/api/main/webcontents"
-)
+import "github.com/gopherjs/gopherjs/js"
 
 // Point defines point for electron
 type Point struct {
@@ -40,20 +37,3 @@ type Display struct {
 	WorkArea     *Rect  `js:"workArea "`     // workArea Rectangle
 	WorkAreaSize *Size  `js:"workAreaSize "` // workAreaSize Object
 }
-
-// IpcEvent is usd in IPC
-type IpcEvent struct {
-	*js.Object
-	// Event object
-	// The event object passed to the callback has the following methods:
-	// event.returnValue
-	// Set this to the value to be returned in a synchronous message.
-	ReturnValue interface{} `js:"returnValue"`
-
-	// event.sender
-	// Returns the webContents that sent the message, you can call event.sender.send to reply to the asynchronous message, see webContents.send for more information.
-	Sender *webcontents.WebContents `js:"sender"`
-}
-
-// IpcListener is used in ipc
-type IpcListener func(evt *IpcEvent, args ...*js.Object)
