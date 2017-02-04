@@ -8,7 +8,7 @@ import (
 	"github.com/oskca/gopherjs-electron/api/main/dialog"
 )
 
-func openDialog() {
+func openFileDialog() {
 	log.Println("openDilog called")
 	d := dialog.Get()
 	files := d.ShowOpenDialog(dialog.OptionOpen{
@@ -27,7 +27,9 @@ func openDialog() {
 
 func main() {
 	electron.UseRemote()
-	js.Global.Set("openDialog", func() {
-		openDialog()
+	js.Global.Set("openFileDialog", openFileDialog)
+	js.Global.Set("showMessage", func() {
+		d := dialog.Get()
+		d.ShowMessage("hello", "world")
 	})
 }
