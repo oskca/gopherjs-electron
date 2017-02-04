@@ -8,10 +8,6 @@ import (
 	"github.com/oskca/gopherjs-nodejs/eventemitter"
 )
 
-var (
-	browserWindow = electron.Get("BrowserWindow")
-)
-
 const (
 	// Instance Events
 	// Objects created with new BrowserWindow emit the following events:
@@ -694,7 +690,7 @@ type BrowserWindow struct {
 
 func New(opts *Option) *BrowserWindow {
 	bw := &BrowserWindow{
-		Object: browserWindow.New(opts),
+		Object: electron.Get("BrowserWindow").New(opts),
 	}
 	bw.EventEmitter = eventemitter.New(bw.Object)
 	return bw
@@ -706,7 +702,7 @@ func New(opts *Option) *BrowserWindow {
 // BrowserWindow.getAllWindows()
 // Returns BrowserWindow[] - An array of all opened browser windows.
 func GetAll() []*BrowserWindow {
-	ws := browserWindow.Call("getAllWindows")
+	ws := electron.Get("BrowserWindow").Call("getAllWindows")
 	ret := []*BrowserWindow{}
 	for i := 0; i < ws.Length(); i++ {
 		ret = append(ret, &BrowserWindow{
@@ -719,7 +715,7 @@ func GetAll() []*BrowserWindow {
 // BrowserWindow.getFocusedWindow()
 // Returns BrowserWindow - The window that is focused in this application, otherwise returns null.
 func GetFocused() *BrowserWindow {
-	w := browserWindow.Call("getFocusedWindow")
+	w := electron.Get("BrowserWindow").Call("getFocusedWindow")
 	if w.String() == "null" {
 		return nil
 	}
@@ -736,7 +732,7 @@ func GetFocused() *BrowserWindow {
 // id Integer
 // Returns BrowserWindow - The window with the given id.
 func FromId(id int) *BrowserWindow {
-	w := browserWindow.Call("fromId", id)
+	w := electron.Get("BrowserWindow").Call("fromId", id)
 	if w.String() == "null" {
 		return nil
 	}

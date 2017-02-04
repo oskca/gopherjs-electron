@@ -9,11 +9,10 @@ package desktopcapturer
 
 import (
 	"github.com/gopherjs/gopherjs/js"
-	electron "github.com/oskca/gopherjs-electron"
 	"github.com/oskca/gopherjs-electron/api/allprocess/nativeimage"
 )
 
-var desktopcapturer = electron.Get("desktopcapturer")
+// var desktopcapturer = electron.Get("desktopcapturer")
 
 // desktopCapturer
 

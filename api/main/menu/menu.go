@@ -5,8 +5,6 @@ import (
 	electron "github.com/oskca/gopherjs-electron"
 )
 
-var menu = electron.Get("Menu")
-
 // Menu The menu object has the following instance methods:
 type Menu struct {
 	*js.Object
@@ -44,7 +42,7 @@ type Menu struct {
 // New Creates a new menu.
 func New() *Menu {
 	return &Menu{
-		Object: menu.New(),
+		Object: electron.Get("Menu").New(),
 	}
 }
 
@@ -56,13 +54,13 @@ func New() *Menu {
 // Sets menu as the application menu on macOS. On Windows and Linux, the menu will be set as each window’s top menu.
 // Note: This API has to be called after the ready event of app module.
 func SetApplicationMenu(m *Menu) {
-	menu.Call("setApplicationMenu", m)
+	electron.Get("Menu").Call("setApplicationMenu", m)
 }
 
 // GetApplicationMenu Returns Menu - The application menu, if set, or null, if not set.
 func GetApplicationMenu() *Menu {
 	return &Menu{
-		Object: menu.Call("getApplicationMenu"),
+		Object: electron.Get("Menu").Call("getApplicationMenu"),
 	}
 }
 
@@ -87,6 +85,6 @@ func BuildFromTemplate(opts []Option) *Menu {
 		o = append(o, opt.toMap())
 	}
 	return &Menu{
-		Object: menu.Call("buildFromTemplate", o),
+		Object: electron.Get("Menu").Call("buildFromTemplate", o),
 	}
 }

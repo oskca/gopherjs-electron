@@ -5,8 +5,6 @@ import (
 	electron "github.com/oskca/gopherjs-electron"
 )
 
-var nativeimage = electron.Get("nativeImage")
-
 // Class: NativeImage
 // ===============================================================
 
@@ -101,7 +99,7 @@ type NativeImage struct {
 // Creates an empty NativeImage instance.
 func CreateEmpty() *NativeImage {
 	return &NativeImage{
-		Object: nativeimage.Call("createEmpty"),
+		Object: electron.Get("nativeImage").Call("createEmpty"),
 	}
 }
 
@@ -112,7 +110,7 @@ func CreateEmpty() *NativeImage {
 // Creates a new NativeImage instance from a file located at path. This method returns an empty image if the path does not exist, cannot be read, or is not a valid image.
 func CreateFromPath(path string) *NativeImage {
 	return &NativeImage{
-		Object: nativeimage.Call("createFromPath", path),
+		Object: electron.Get("nativeImage").Call("createFromPath", path),
 	}
 }
 
@@ -131,9 +129,9 @@ func CreateFromPath(path string) *NativeImage {
 func CreateFromBuffer(buffer *js.Object, opts ...*js.Object) *NativeImage {
 	img := &NativeImage{}
 	if len(opts) > 0 {
-		img.Object = nativeimage.Call("createFromBuffer", buffer, opts[0])
+		img.Object = electron.Get("nativeImage").Call("createFromBuffer", buffer, opts[0])
 	} else {
-		img.Object = nativeimage.Call("createFromBuffer", buffer)
+		img.Object = electron.Get("nativeImage").Call("createFromBuffer", buffer)
 	}
 	return img
 }
@@ -145,6 +143,6 @@ func CreateFromBuffer(buffer *js.Object, opts ...*js.Object) *NativeImage {
 // Creates a new NativeImage instance from dataURL.
 func CreateFromDataURL(dataURL string) *NativeImage {
 	return &NativeImage{
-		Object: nativeimage.Call("createFromDataURL", dataURL),
+		Object: electron.Get("nativeImage").Call("createFromDataURL", dataURL),
 	}
 }

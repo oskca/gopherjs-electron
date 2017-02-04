@@ -10,8 +10,6 @@ import (
 	"github.com/oskca/gopherjs-electron/api"
 )
 
-var screen = electron.Get("screen")
-
 // An example of creating a window that fills the whole screen:
 
 // const electron = require('electron')
@@ -86,7 +84,7 @@ const (
 // The current absolute position of the mouse pointer.
 func GetCursorScreenPoint() *api.Point {
 	return &api.Point{
-		Object: screen.Call("getCursorScreenPoint"),
+		Object: electron.Get("screen").Call("getCursorScreenPoint"),
 	}
 }
 
@@ -94,7 +92,7 @@ func GetCursorScreenPoint() *api.Point {
 // Returns Display - The primary display.
 func GetPrimaryDisplay() *api.Display {
 	return &api.Display{
-		Object: screen.Call("getPrimaryDisplay"),
+		Object: electron.Get("screen").Call("getPrimaryDisplay"),
 	}
 }
 
@@ -102,7 +100,7 @@ func GetPrimaryDisplay() *api.Display {
 // Returns Display[] - An array of displays that are currently available.
 func GetAllDisplays() []*api.Display {
 	ret := []*api.Display{}
-	s := screen.Call("getAllDisplays")
+	s := electron.Get("screen").Call("getAllDisplays")
 	for index := 0; index < s.Length(); index++ {
 		o := s.Index(index)
 		ret = append(ret, &api.Display{
@@ -119,7 +117,7 @@ func GetAllDisplays() []*api.Display {
 // Returns Display - The display nearest the specified point.
 func GetDisplayNearestPoint() *api.Point {
 	return &api.Point{
-		Object: screen.Call("getDisplayNearestPoint"),
+		Object: electron.Get("screen").Call("getDisplayNearestPoint"),
 	}
 }
 
@@ -128,6 +126,6 @@ func GetDisplayNearestPoint() *api.Point {
 // Returns Display - The display that most closely intersects the provided bounds.
 func GetDisplayMatching(rect *api.Rect) *api.Display {
 	return &api.Display{
-		Object: screen.Call("getDisplayMatching", rect),
+		Object: electron.Get("screen").Call("getDisplayMatching", rect),
 	}
 }

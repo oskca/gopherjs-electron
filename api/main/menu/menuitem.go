@@ -2,6 +2,7 @@ package menu
 
 import (
 	"github.com/gopherjs/gopherjs/js"
+	electron "github.com/oskca/gopherjs-electron"
 	"github.com/oskca/gopherjs-electron/api/allprocess/nativeimage"
 )
 
@@ -192,7 +193,7 @@ type Item struct {
 }
 
 func NewItem(opt Option) *Item {
-	o := menu.Call("MenuItem", opt.toMap())
+	o := electron.Get("Menu").Call("MenuItem", opt.toMap())
 	return &Item{
 		Object: o,
 	}
