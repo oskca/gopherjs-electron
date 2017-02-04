@@ -79,6 +79,7 @@ const (
 
 // WebContents wrapper of webContents
 type WebContents struct {
+	*js.Object
 	//    Instance Methods
 	// contents.loadURL(url[, options])
 	// url String
@@ -665,7 +666,7 @@ type WebContents struct {
 	// Instance Properties
 	// contents.id
 	// A Integer representing the unique ID of this WebContents.
-	Id int `js:"id"`
+	ID int `js:"id"`
 
 	// contents.session
 	// A Session object (session) used by this webContents.

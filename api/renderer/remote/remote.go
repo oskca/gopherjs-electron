@@ -17,9 +17,12 @@
 // you can use webContents.executeJavascript.
 package remote
 
-import electron "github.com/oskca/gopherjs-electron"
-import "github.com/gopherjs/gopherjs/js"
-import "github.com/oskca/gopherjs-electron/api/main/browserwindow"
+import (
+	"github.com/gopherjs/gopherjs/js"
+	electron "github.com/oskca/gopherjs-electron"
+	"github.com/oskca/gopherjs-electron/api/main/browserwindow"
+	"github.com/oskca/gopherjs-electron/api/main/webcontents"
+)
 
 var (
 	remote = js.Global.Get("electron").Get("remote")
@@ -28,26 +31,24 @@ var (
 // GetCurrentWindow remote.getCurrentWindow()
 // Returns BrowserWindow - The window to which this web page belongs.
 func GetCurrentWindow() *browserwindow.BrowserWindow {
-    return &browserwindow.BrowserWindow{
-        Object:remote.Call("getCurrentWindow")
-    }
+	return &browserwindow.BrowserWindow{
+		Object: remote.Call("getCurrentWindow"),
+	}
 }
 
 // GetCurrentWebContents remote.getCurrentWebContents()
 // Returns WebContents - The web contents of this web page.
 func GetCurrentWebContents() *webcontents.WebContents {
-    return &webcontents.WebContents{
-        Object:remote.Call("getCurrentWebContents")
-    }
+	return &webcontents.WebContents{
+		Object: remote.Call("getCurrentWebContents"),
+	}
 }
 
 // GetGlobal remote.getGlobal(name)
 // name String
 // Returns any - The global variable of name (e.g. global[name]) in the main process.
 func GetGlobal(name string) *js.Object {
-    return &js.Object{
-        Object:remote.Call("getGlobal", name)
-    }
+	return remote.Call("getGlobal", name)
 }
 
 func init() {
