@@ -1,7 +1,7 @@
 // Package ipc Communicate asynchronously from a renderer process to the main process.
 // Process: Renderer/Main
 //
-// The ipc module is an instance of the EventEmitter class.
+// The ipc module is an instance of the Emitter class.
 // It provides a few methods so you can send synchronous and asynchronous messages from
 // the render process (web page) to the main process. You can also receive replies from the main process.
 package ipc
@@ -10,12 +10,10 @@ import (
 	"github.com/gopherjs/gopherjs/js"
 	electron "github.com/oskca/gopherjs-electron"
 	"github.com/oskca/gopherjs-electron/api/main/webcontents"
-	"github.com/oskca/gopherjs-nodejs/eventemitter"
 )
 
 type IPC struct {
-	*js.Object
-	*eventemitter.EventEmitter
+	*events.Emitter
 }
 
 // Event is usd in IPC
@@ -37,8 +35,7 @@ type Listener func(evt *Event, args ...*js.Object)
 
 func newIPC(obj *js.Object) *IPC {
 	ipc := new(IPC)
-	ipc.Object = obj
-	ipc.EventEmitter = eventemitter.New(obj)
+	ipc.Emitter = events.New(obj)
 	return ipc
 }
 

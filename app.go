@@ -1,12 +1,10 @@
 package electron
 
-import "github.com/gopherjs/gopherjs/js"
-import "github.com/oskca/gopherjs-nodejs/eventemitter"
+import "github.com/oskca/gopherjs-nodejs/events"
 
 var (
 	app = &App{
-		Object:       Get("app"),
-		EventEmitter: eventemitter.New(Get("app")),
+		Emitter: events.New(Get("app")),
 	}
 )
 
@@ -36,8 +34,7 @@ func GetApp() *App {
 }
 
 type App struct {
-	*js.Object
-	*eventemitter.EventEmitter
+	*events.Emitter
 	// app.quit()
 	// Try to close all windows. The before-quit event will be emitted first. If all windows are successfully closed, the will-quit event will be emitted and by default the application will terminate.
 	//

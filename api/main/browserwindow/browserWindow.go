@@ -5,7 +5,7 @@ import (
 	electron "github.com/oskca/gopherjs-electron"
 	"github.com/oskca/gopherjs-electron/api/main/menu"
 	"github.com/oskca/gopherjs-electron/api/main/webcontents"
-	"github.com/oskca/gopherjs-nodejs/eventemitter"
+	"github.com/oskca/gopherjs-nodejs/events"
 )
 
 const (
@@ -177,8 +177,8 @@ func NewOption() *Option {
 }
 
 type BrowserWindow struct {
-	*js.Object
-	*eventemitter.EventEmitter
+	// *js.Object
+	*events.Emitter
 	// win.webContents
 	// A WebContents object this window owns. All web page related events and
 	// operations will be done via it.
@@ -690,9 +690,8 @@ type BrowserWindow struct {
 
 func New(opts *Option) *BrowserWindow {
 	bw := &BrowserWindow{
-		Object: electron.Get("BrowserWindow").New(opts),
+		Emitter: events.New(electron.Get("BrowserWindow").New(opts)),
 	}
-	bw.EventEmitter = eventemitter.New(bw.Object)
 	return bw
 }
 
@@ -706,7 +705,7 @@ func GetAll() []*BrowserWindow {
 	ret := []*BrowserWindow{}
 	for i := 0; i < ws.Length(); i++ {
 		ret = append(ret, &BrowserWindow{
-			Object: ws.Index(i),
+			Emitter: events.New(ws.Index(i)),
 		})
 	}
 	return ret
@@ -720,7 +719,7 @@ func GetFocused() *BrowserWindow {
 		return nil
 	}
 	return &BrowserWindow{
-		Object: w,
+		Emitter: events.New(w),
 	}
 }
 
@@ -737,7 +736,7 @@ func FromId(id int) *BrowserWindow {
 		return nil
 	}
 	return &BrowserWindow{
-		Object: w,
+		Emitter: events.New(w),
 	}
 }
 
