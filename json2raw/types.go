@@ -234,6 +234,14 @@ type Block struct {
 
 type ApiFile []*Block
 
+func (b *Block) declOther(w *Context) {
+	// props
+	fmt.Fprintf(w, "\ntype %s struct {\n\t", b.goSym())
+	fmt.Fprintf(w, "*js.Object\n\t")
+	declSlice(b.Properties, w, b.Base)
+	fmt.Fprintf(w, "}\n")
+}
+
 func (b *Block) declModule(w *Context) {
 	// evnents
 	if len(b.Events) > 0 {
@@ -282,9 +290,10 @@ func (a ApiFile) decl() {
 		}
 		if b.isModule() {
 			b.declModule(ctx)
-		}
-		if b.isClass() {
+		} else if b.isClass() {
 			b.declClass(ctx)
+		} else {
+			b.declOther(ctx)
 		}
 		ctx.declNewTypes()
 		if err = ctx.Close(); err != nil {
