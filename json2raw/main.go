@@ -72,13 +72,36 @@ func (c *Context) newConst(p *Property, parent *Base) string {
 	return tname
 }
 
-func (c *Context) doNewType(tname string, p *Property) {
+func (c *Context) sub() *Context {
+	nc := new(Context)
+	nc.w = c.w
+	nc.base = c.base
+	nc.compoundTypes = make(map[string]*Property)
+	nc.consts = make(map[string][]*PossibleValue)
+	return nc
+}
 
+func (c *Context) doNewCompound(tname string, p *Property) {
+	nc := c.sub()
+	if p.isFunction() {
+		fmt.Fprintf(nc, "\ntype %s func(", tname)
+		declSlice(p.Parameters, nc, p.Base, ",")
+		fmt.Fprintf(nc, ")")
+		return
+	}
+	fmt.Fprintf(nc, "\ntype %s struct {\n\t", tname)
+	fmt.Fprintf(nc, "*js.Object\n\t")
+	declSlice(p.Properties, nc, p.Base)
+	fmt.Fprintf(nc, "}\n")
+	// recursive
+	if len(nc.compoundTypes) > 0 || len(nc.consts) > 0 {
+		nc.declNewTypes()
+	}
 }
 
 func (c *Context) declNewTypes() {
 	for tname, p := range c.compoundTypes {
-		c.doNewType(tname, p)
+		c.doNewCompound(tname, p)
 	}
 	for tname, vals := range c.consts {
 		fmt.Fprintf(c, "\ntype %s string\n", tname)
@@ -101,7 +124,13 @@ type decler interface {
 	comment(w io.Writer)
 }
 
-func declSlice(ar interface{}, w *Context, parent *Base) {
+func declSlice(ar interface{}, w *Context, parent *Base, seperators ...string) {
+	// seperator
+	sep := "\n\t"
+	if len(seperators) > 0 {
+		sep = seperators[0]
+	}
+	// arrange
 	v := reflect.ValueOf(ar)
 	if v.IsNil() {
 		return
@@ -119,7 +148,7 @@ func declSlice(ar interface{}, w *Context, parent *Base) {
 		}
 		ds[i].decl(w, parent)
 		ds[i].annotate(w, parent)
-		fmt.Fprintf(w, "\n\t")
+		fmt.Fprintf(w, sep)
 	}
 }
 
