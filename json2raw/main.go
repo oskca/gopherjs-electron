@@ -83,6 +83,12 @@ func (c *Context) sub() *Context {
 
 func (c *Context) doNewCompound(tname string, p *Property) {
 	nc := c.sub()
+	defer func() {
+		// recursive
+		if len(nc.compoundTypes) > 0 || len(nc.consts) > 0 {
+			nc.declNewTypes()
+		}
+	}()
 	if p.isFunction() {
 		fmt.Fprintf(nc, "\ntype %s func(", tname)
 		declSlice(p.Parameters, nc, p.Base, ",")
@@ -93,10 +99,6 @@ func (c *Context) doNewCompound(tname string, p *Property) {
 	fmt.Fprintf(nc, "*js.Object\n\t")
 	declSlice(p.Properties, nc, p.Base)
 	fmt.Fprintf(nc, "}\n")
-	// recursive
-	if len(nc.compoundTypes) > 0 || len(nc.consts) > 0 {
-		nc.declNewTypes()
-	}
 }
 
 func (c *Context) declNewTypes() {
