@@ -17,12 +17,17 @@ var (
 	outDir        string
 )
 
+var (
+	globalTypeNames = make(map[string]struct{})
+)
+
 type Context struct {
 	w             io.Writer
 	compoundTypes map[string]*Property
 	consts        map[string][]*PossibleValue
 	// targeting/toplevel block/base
 	base *Base
+	// global type names
 }
 
 func newContext(b *Base) (w *Context, err error) {
@@ -55,9 +60,23 @@ func (c *Context) Write(b []byte) (int, error) {
 
 func (c *Context) newType(p *Property, parent *Base) string {
 	tname := parent.goSym() + p.goSym()
-	if _, ok := c.compoundTypes[tname]; !ok {
-		c.compoundTypes[tname] = p
+	if c.base != nil { // prefix module/class name
+		tname = c.base.goSym() + tname
 	}
+	// avoid duplicated names
+	if _, alreadyExist := globalTypeNames[tname]; alreadyExist {
+		for i := 1; ; i++ {
+			tmp := fmt.Sprintf("%s%d", tname, i)
+			if _, ok := globalTypeNames[tmp]; !ok {
+				tname = tmp
+				break
+			}
+		}
+	}
+	// put into global names
+	globalTypeNames[tname] = struct{}{}
+	c.compoundTypes[tname] = p
+	//
 	if p.isObject() || p.isStructure() {
 		return "*" + tname
 	}
@@ -66,9 +85,22 @@ func (c *Context) newType(p *Property, parent *Base) string {
 
 func (c *Context) newConst(p *Property, parent *Base) string {
 	tname := parent.goSym() + p.goSym()
-	if _, ok := c.consts[tname]; !ok {
-		c.consts[tname] = p.PossibleValues
+	if c.base != nil { // prefix module/class name
+		tname = c.base.goSym() + tname
 	}
+	// avoid duplicated names
+	if _, alreadyExist := globalTypeNames[tname]; alreadyExist {
+		for i := 1; ; i++ {
+			tmp := fmt.Sprintf("%s%d", tname, i)
+			if _, ok := globalTypeNames[tmp]; !ok {
+				tname = tmp
+				break
+			}
+		}
+	}
+	// put into global names
+	globalTypeNames[tname] = struct{}{}
+	c.consts[tname] = p.PossibleValues
 	return tname
 }
 
