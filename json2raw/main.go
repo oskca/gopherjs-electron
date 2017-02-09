@@ -42,28 +42,60 @@ func newContext(b *Base) (w *Context, err error) {
 	return w, nil
 }
 
-func (w *Context) Close() error {
-	// flush compoundTypes
-	opath := outDir + "/" + strings.ToLower(w.base.Name) + ".go"
-	ow, err := os.OpenFile(opath, os.O_APPEND|os.O_WRONLY, 0666)
+func getOutputFileName(baseFileName string) string {
+	opath := outDir + "/" + strings.ToLower(baseFileName) + ".go"
+	_, err := os.Stat(opath)
 	if err != nil && os.IsNotExist(err) {
-		ow, err = os.Create(opath)
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(ow, "package electron\n")
-		fmt.Fprintf(ow, "\nimport \"github.com/gopherjs/gopherjs/js\"\n")
+		return opath
 	}
+	for i := 2; ; i++ {
+		opath = outDir + "/" + strings.ToLower(baseFileName) + fmt.Sprint(i) + ".go"
+		_, err = os.Stat(opath)
+		if err != nil && os.IsNotExist(err) {
+			break
+		}
+	}
+	return opath
+}
+
+func (w *Context) adjustImport(b *Block) {
+	if len(b.Properties)+len(b.Methods)+len(b.InstanceProperties)+len(b.InstanceMethods) > 0 {
+	}
+	buf := bytes.NewBuffer(nil)
+	src := w.w.Bytes()
+	fmt.Fprintf(buf, "package electron\n")
+	if b.isEventEmitter() {
+		fmt.Fprintf(buf, "import \"github.com/oskca/gopherjs-nodejs/events\"\n")
+	}
+	if bytes.Contains(src, []byte("js.Object")) {
+		fmt.Fprintf(buf, "\nimport \"github.com/gopherjs/gopherjs/js\"\n")
+	}
+	buf.Write(src)
+	w.w = buf
+}
+
+func (w *Context) formatCode() (err error) {
 	src := w.w.Bytes()
 	// format
 	if doFormat {
 		src, err = format.Source(src)
 		if err != nil {
-			return err
+			return
 		}
 	}
+	w.w = bytes.NewBuffer(src)
+	return nil
+}
+
+func (w *Context) OutputToFile() error {
+	// flush compoundTypes
+	opath := getOutputFileName(strings.ToLower(w.base.Name))
+	ow, err := os.Create(opath)
+	if err != nil {
+		return err
+	}
 	// flush and close file
-	_, err = ow.Write(src)
+	io.Copy(ow, w.w)
 	if err != nil {
 		return err
 	}
@@ -81,7 +113,7 @@ func (c *Context) newType(p *Property, parent *Base) string {
 	}
 	// avoid duplicated names
 	if _, alreadyExist := globalTypeNames[tname]; alreadyExist {
-		for i := 1; ; i++ {
+		for i := 2; ; i++ {
 			tmp := fmt.Sprintf("%s%d", tname, i)
 			if _, ok := globalTypeNames[tmp]; !ok {
 				tname = tmp
@@ -150,12 +182,14 @@ func (c *Context) doNewCompound(tname string, p *Property) {
 }
 
 func (c *Context) declNewTypes() {
+	// obj/func/structure etc
 	for tname, p := range c.compoundTypes {
 		c.doNewCompound(tname, p)
 	}
+	// consts
 	for tname, vals := range c.consts {
 		fmt.Fprintf(c, "\ntype %s string\n", tname)
-		fmt.Fprintf(c, "\nconst (")
+		fmt.Fprintf(c, "\n// consts \nconst (")
 		for _, val := range vals {
 			fmt.Fprintf(c, "\n\t%s%s %s = \"%s\"",
 				tname,

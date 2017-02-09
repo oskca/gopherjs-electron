@@ -98,6 +98,10 @@ func (b *Base) comment(w io.Writer) {
 		} else {
 			fmt.Fprintf(w, "// %s\n", text(b.Description))
 		}
+	} else {
+		if b.isStructure() {
+			fmt.Fprintf(w, "// %s a Structure\n", b.goSym())
+		}
 	}
 }
 
@@ -276,16 +280,24 @@ func (b *Block) declModule(w *Context) {
 		b.comment(w)
 	}
 	fmt.Fprintf(w, "type %s struct {\n\t", b.goSym())
-	fmt.Fprintf(w, "*js.Object\n\t")
+	if b.isEventEmitter() {
+		fmt.Fprintf(w, "*events.Emitter\n\t")
+	} else {
+		fmt.Fprintf(w, "*js.Object\n\t")
+	}
 	declSlice(b.Properties, w, b.Base)
 	declSlice(b.Methods, w, b.Base)
 	fmt.Fprintf(w, "}\n")
 }
 
+func (b *Block) isEventEmitter() bool {
+	return len(b.Events)+len(b.InstanceEvents) > 0
+}
+
 func (b *Block) declClass(w *Context) {
 	// evnents
 	if len(b.InstanceEvents) > 0 {
-		fmt.Fprintf(w, "\nconst (\n\t")
+		fmt.Fprintf(w, "\n// events \nconst (\n\t")
 		declSlice(b.InstanceEvents, w, nil)
 		fmt.Fprintf(w, ")\n")
 	}
@@ -294,7 +306,11 @@ func (b *Block) declClass(w *Context) {
 		b.comment(w)
 	}
 	fmt.Fprintf(w, "type %s struct {\n\t", b.goSym())
-	fmt.Fprintf(w, "*js.Object\n\t")
+	if b.isEventEmitter() {
+		fmt.Fprintf(w, "*events.Emitter\n\t")
+	} else {
+		fmt.Fprintf(w, "*js.Object\n\t")
+	}
 	declSlice(b.InstanceProperties, w, b.Base)
 	declSlice(b.InstanceMethods, w, b.Base)
 	fmt.Fprintf(w, "}\n")
@@ -316,6 +332,7 @@ func (a ApiFile) decl() {
 		if err != nil {
 			log.Println(b.Name, err)
 		}
+		// decl
 		if b.isModule() {
 			b.declModule(ctx)
 		} else if b.isClass() {
@@ -323,8 +340,12 @@ func (a ApiFile) decl() {
 		} else {
 			b.declOther(ctx)
 		}
+		// decl extra types
 		ctx.declNewTypes()
-		if err = ctx.Close(); err != nil {
+		// adjust import
+		ctx.adjustImport(b)
+		// write output
+		if err = ctx.OutputToFile(); err != nil {
 			log.Println(b.Name, err)
 		}
 	}
