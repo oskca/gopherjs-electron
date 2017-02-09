@@ -7,14 +7,17 @@ import (
 	"log"
 	"os"
 	"reflect"
-
-	"fmt"
 	"strings"
+
+	"bytes"
+	"fmt"
+	"go/format"
 )
 
 var (
 	enableComment bool
 	outDir        string
+	doFormat      bool
 )
 
 var (
@@ -22,7 +25,7 @@ var (
 )
 
 type Context struct {
-	w             io.Writer
+	w             *bytes.Buffer
 	compoundTypes map[string]*Property
 	consts        map[string][]*PossibleValue
 	// targeting/toplevel block/base
@@ -33,25 +36,38 @@ type Context struct {
 func newContext(b *Base) (w *Context, err error) {
 	w = new(Context)
 	w.base = b
-	opath := outDir + "/" + strings.ToLower(b.Name) + ".go"
-	w.w, err = os.OpenFile(opath, os.O_APPEND|os.O_WRONLY, 0666)
-	if err != nil && os.IsNotExist(err) {
-		w.w, err = os.Create(opath)
-		if err != nil {
-			return nil, err
-		}
-		fmt.Fprintf(w, "package electron\n")
-		fmt.Fprintf(w, "\nimport \"github.com/gopherjs/gopherjs/js\"\n")
-	}
+	w.w = bytes.NewBuffer(nil)
 	w.compoundTypes = make(map[string]*Property)
 	w.consts = make(map[string][]*PossibleValue)
 	return w, nil
 }
 
-func (c *Context) Close() error {
+func (w *Context) Close() error {
 	// flush compoundTypes
-	// close file
-	return c.w.(*os.File).Close()
+	opath := outDir + "/" + strings.ToLower(w.base.Name) + ".go"
+	ow, err := os.OpenFile(opath, os.O_APPEND|os.O_WRONLY, 0666)
+	if err != nil && os.IsNotExist(err) {
+		ow, err = os.Create(opath)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(ow, "package electron\n")
+		fmt.Fprintf(ow, "\nimport \"github.com/gopherjs/gopherjs/js\"\n")
+	}
+	src := w.w.Bytes()
+	// format
+	if doFormat {
+		src, err = format.Source(src)
+		if err != nil {
+			return err
+		}
+	}
+	// flush and close file
+	_, err = ow.Write(src)
+	if err != nil {
+		return err
+	}
+	return ow.Close()
 }
 
 func (c *Context) Write(b []byte) (int, error) {
@@ -199,7 +215,6 @@ func process(fpath string) error {
 	if err != nil {
 		return err
 	}
-	println(len(a))
 	a.decl()
 	return nil
 }
@@ -215,6 +230,7 @@ func main() {
 
 func init() {
 	flag.BoolVar(&enableComment, "c", false, "generate comment")
+	flag.BoolVar(&doFormat, "f", true, "format the output code")
 	flag.StringVar(&outDir, "o", "rawapi", "output directory for raw api")
 	flag.Parse()
 }
