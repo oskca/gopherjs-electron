@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"html"
 	"io"
 	"log"
 	"reflect"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 type Base struct {
@@ -77,9 +80,25 @@ func (b *Base) goSym() string {
 	return name
 }
 
+func text(desc string) string {
+	desc = strings.Replace(desc, "\n", "\n//", -1)
+	desc = html.UnescapeString(desc)
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(desc))
+	if err != nil {
+		println(err.Error())
+		return desc
+	}
+	return doc.Text()
+}
+
 func (b *Base) comment(w io.Writer) {
-	fmt.Fprintf(w, "\n// %s docs \n", b.goSym())
-	fmt.Fprintf(w, "\n//%s", b.Description)
+	if b.Description != "" {
+		if b.Version != "" {
+			fmt.Fprintf(w, "// %s version:%s \n//\n// %s\n", b.goSym(), b.Version, text(b.Description))
+		} else {
+			fmt.Fprintf(w, "// %s\n", text(b.Description))
+		}
+	}
 }
 
 func (b *Base) isModule() bool {
@@ -235,8 +254,11 @@ type Block struct {
 type ApiFile []*Block
 
 func (b *Block) declOther(w *Context) {
+	if enableComment {
+		b.comment(w)
+	}
 	// props
-	fmt.Fprintf(w, "\ntype %s struct {\n\t", b.goSym())
+	fmt.Fprintf(w, "type %s struct {\n\t", b.goSym())
 	fmt.Fprintf(w, "*js.Object\n\t")
 	declSlice(b.Properties, w, b.Base)
 	fmt.Fprintf(w, "}\n")
@@ -250,7 +272,10 @@ func (b *Block) declModule(w *Context) {
 		fmt.Fprintf(w, ")\n")
 	}
 	// props and methods
-	fmt.Fprintf(w, "\ntype %s struct {\n\t", b.goSym())
+	if enableComment {
+		b.comment(w)
+	}
+	fmt.Fprintf(w, "type %s struct {\n\t", b.goSym())
 	fmt.Fprintf(w, "*js.Object\n\t")
 	declSlice(b.Properties, w, b.Base)
 	declSlice(b.Methods, w, b.Base)
@@ -265,7 +290,10 @@ func (b *Block) declClass(w *Context) {
 		fmt.Fprintf(w, ")\n")
 	}
 	// props and methods
-	fmt.Fprintf(w, "\ntype %s struct {\n\t", b.goSym())
+	if enableComment {
+		b.comment(w)
+	}
+	fmt.Fprintf(w, "type %s struct {\n\t", b.goSym())
 	fmt.Fprintf(w, "*js.Object\n\t")
 	declSlice(b.InstanceProperties, w, b.Base)
 	declSlice(b.InstanceMethods, w, b.Base)
