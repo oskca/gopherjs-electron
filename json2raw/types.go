@@ -7,6 +7,8 @@ import (
 	"log"
 	"strings"
 
+	"os"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -238,6 +240,43 @@ func (m *Method) decl(w *Context, parent *Base) {
 	}
 }
 
+// defBody write declaration and function body
+func (m *Method) defBody(w *Context, rawMethodName string, isConstructor bool) {
+	fmt.Fprintf(w, "\nfunc %s(", goSym(rawMethodName))
+	// parameters
+	for _, p := range m.Parameters {
+		p.decl(w, w.base)
+		fmt.Fprintf(w, ",")
+	}
+	fmt.Fprintf(w, ")")
+	// return
+	if m.Return != nil {
+		fmt.Fprintf(w, " *js.Object ")
+	}
+	// body
+	fmt.Fprintf(w, "{\n")
+	fmt.Fprintf(w, "o := electron.Get(\"%s\")\n", w.base.Name)
+	// ret
+	if m.Return != nil {
+		fmt.Fprintf(w, "ret := ")
+	}
+	// parameters
+	if isConstructor {
+		fmt.Fprintf(w, "o.Invoke(\"New\"")
+	} else {
+		fmt.Fprintf(w, "o.Call(\"%s\"", rawMethodName)
+	}
+	for _, p := range m.Parameters {
+		fmt.Fprintf(w, ", %s", p.goSym())
+	}
+	fmt.Fprintf(w, ")\n")
+	// return
+	if m.Return != nil {
+		fmt.Fprintf(w, "return ret\n")
+	}
+	fmt.Fprintf(w, "}")
+}
+
 type Block struct {
 	*Base
 	// module
@@ -314,7 +353,13 @@ func (b *Block) declClass(w *Context) {
 	declSlice(b.InstanceMethods, w, b.Base)
 	fmt.Fprintf(w, "}\n")
 	// static methods
+	for _, m := range b.StaticMethods {
+		m.defBody(w, m.Name, false)
+	}
 	// constructorMethod
+	if b.ConstructorMethod != nil {
+		b.ConstructorMethod.defBody(w, "New"+b.goSym(), true)
+	}
 }
 
 func (a ApiFile) test() {
@@ -325,7 +370,23 @@ func (a ApiFile) test() {
 	}
 }
 
-func (a ApiFile) decl() {
+func (a ApiFile) createElectronTemplate() error {
+	opath := outDir + "/electron.go"
+	w, err := os.Create(opath)
+	if err != nil {
+		return err
+	}
+	_, err = io.WriteString(w, electronTemplate)
+	return err
+}
+
+func (a ApiFile) decl() error {
+	// electron template
+	err := a.createElectronTemplate()
+	if err != nil {
+		return err
+	}
+	// blocks
 	for _, b := range a {
 		log.Println("Processing", b.Base.Name)
 		ctx, err := newContext(b.Base)
@@ -352,4 +413,5 @@ func (a ApiFile) decl() {
 		}
 	}
 	// a.test()
+	return nil
 }
