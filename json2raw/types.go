@@ -326,6 +326,14 @@ func (b *Block) declModule(w *Context) {
 	declSlice(b.Properties, w, b.Base)
 	declSlice(b.Methods, w, b.Base)
 	fmt.Fprintf(w, "}\n")
+	// getters
+	getter := moduleGetterTemplate
+	if b.isEventEmitter() {
+		getter = moduleGetterTemplateWithEmitter
+	}
+	getter = strings.Replace(getter, "Module", b.goSym(), -1)
+	getter = fmt.Sprintf(getter, b.Name)
+	fmt.Fprintf(w, "%s", getter)
 }
 
 func (b *Block) isEventEmitter() bool {
@@ -352,6 +360,12 @@ func (b *Block) declClass(w *Context) {
 	declSlice(b.InstanceProperties, w, b.Base)
 	declSlice(b.InstanceMethods, w, b.Base)
 	fmt.Fprintf(w, "}\n")
+	// wrapper
+	wrapper := strings.Replace(classWrapperTemplate, "Class", b.goSym(), -1)
+	if b.isEventEmitter() {
+		wrapper = strings.Replace(classWrapperTemplateWithEmitter, "ClassWithEmitter", b.goSym(), -1)
+	}
+	fmt.Fprintf(w, "%s", wrapper)
 	// static methods
 	for _, m := range b.StaticMethods {
 		m.defBody(w, m.Name, false)

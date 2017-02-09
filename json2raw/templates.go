@@ -25,25 +25,34 @@ func UseRemote() {
 	useRemote = true
 }`
 
-var moduleConstructorTemplate = `
+var moduleGetterTemplate = `
 func GetModule() *Module {
-	o := electron.Get("Module")
+	o := electron.Get("%s")
 	return &Module{
 		Object: o,
 	}
 }
 `
 
-var classWithEmitterConstructorTemplate = `
-func WrapClassWithEmitter(o *js.Object) ClassWithEmitter {
+var moduleGetterTemplateWithEmitter = `
+func GetModule() *Module {
+	o := electron.Get("%s")
+	return &Module{
+		Emitter: events.New(o),
+	}
+}
+`
+
+var classWrapperTemplateWithEmitter = `
+func WrapClassWithEmitter(o *js.Object) *ClassWithEmitter {
 	return &ClassWithEmitter{
 		Emitter: events.New(o),
 	}
 }
 `
 
-var classConstructorTemplate = `
-func WrapClass(o *js.Object) Class {
+var classWrapperTemplate = `
+func WrapClass(o *js.Object) *Class {
 	return &Class{
 		Object: o,
 	}
