@@ -241,7 +241,7 @@ func (m *Method) decl(w *Context, parent *Base) {
 }
 
 // defBody write declaration and function body
-func (m *Method) defBody(w *Context, rawMethodName string, isConstructor bool) {
+func (m *Method) defStaticMethodBody(w *Context, rawMethodName string) {
 	fmt.Fprintf(w, "\nfunc %s(", goSym(rawMethodName))
 	// parameters
 	for _, p := range m.Parameters {
@@ -261,11 +261,7 @@ func (m *Method) defBody(w *Context, rawMethodName string, isConstructor bool) {
 		fmt.Fprintf(w, "ret := ")
 	}
 	// parameters
-	if isConstructor {
-		fmt.Fprintf(w, "o.Invoke(\"New\"")
-	} else {
-		fmt.Fprintf(w, "o.Call(\"%s\"", rawMethodName)
-	}
+	fmt.Fprintf(w, "o.Call(\"%s\"", rawMethodName)
 	for _, p := range m.Parameters {
 		fmt.Fprintf(w, ", %s", p.goSym())
 	}
@@ -274,6 +270,31 @@ func (m *Method) defBody(w *Context, rawMethodName string, isConstructor bool) {
 	if m.Return != nil {
 		fmt.Fprintf(w, "return ret\n")
 	}
+	fmt.Fprintf(w, "}")
+}
+
+func (m *Method) defConstructorBody(w *Context, rawMethodName string) {
+	fmt.Fprintf(w, "\nfunc %s(", goSym(rawMethodName))
+	// parameters
+	for _, p := range m.Parameters {
+		p.decl(w, w.base)
+		fmt.Fprintf(w, ",")
+	}
+	fmt.Fprintf(w, ")")
+	// return type
+	fmt.Fprintf(w, " *%s", w.base.goSym())
+	// body
+	fmt.Fprintf(w, "{\n")
+	fmt.Fprintf(w, "o := electron.Get(\"%s\")\n", w.base.Name)
+	fmt.Fprintf(w, "ret := ")
+	// parameters
+	fmt.Fprintf(w, "o.Invoke(\"New\"")
+	for _, p := range m.Parameters {
+		fmt.Fprintf(w, ", %s", p.goSym())
+	}
+	fmt.Fprintf(w, ")\n")
+	// return
+	fmt.Fprintf(w, "return Wrap%s(ret)\n", w.base.goSym())
 	fmt.Fprintf(w, "}")
 }
 
@@ -368,11 +389,11 @@ func (b *Block) declClass(w *Context) {
 	fmt.Fprintf(w, "%s", wrapper)
 	// static methods
 	for _, m := range b.StaticMethods {
-		m.defBody(w, m.Name, false)
+		m.defStaticMethodBody(w, m.Name)
 	}
 	// constructorMethod
 	if b.ConstructorMethod != nil {
-		b.ConstructorMethod.defBody(w, "New"+b.goSym(), true)
+		b.ConstructorMethod.defConstructorBody(w, "New"+b.goSym())
 	}
 }
 
