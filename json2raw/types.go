@@ -5,7 +5,6 @@ import (
 	"html"
 	"io"
 	"log"
-	"reflect"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -39,12 +38,12 @@ func (b *Base) Type() string {
 	// if v.IsNil() {
 	// 	return ""
 	// }
-	t := reflect.TypeOf(b.RawType)
-	if t.Kind() == reflect.String {
-		return b.RawType.(string)
+	// t := reflect.TypeOf(b.RawType)
+	if v, ok := b.RawType.(string); ok {
+		return v
 	}
-	if t.Kind() == reflect.Array {
-		return b.RawType.([]string)[0]
+	if v, ok := b.RawType.([]interface{}); ok {
+		return v[0].(string)
 	}
 	return ""
 }
@@ -94,7 +93,7 @@ func text(desc string) string {
 func (b *Base) comment(w io.Writer) {
 	if b.Description != "" {
 		if b.Version != "" {
-			fmt.Fprintf(w, "// %s version:%s \n//\n// %s\n", b.goSym(), b.Version, text(b.Description))
+			fmt.Fprintf(w, "// %s version@%s \n//\n// %s\n", b.goSym(), b.Version, text(b.Description))
 		} else {
 			fmt.Fprintf(w, "// %s\n", text(b.Description))
 		}
@@ -315,6 +314,7 @@ func (b *Block) declClass(w *Context) {
 	declSlice(b.InstanceMethods, w, b.Base)
 	fmt.Fprintf(w, "}\n")
 	// static methods
+	// constructorMethod
 }
 
 func (a ApiFile) test() {
@@ -344,6 +344,8 @@ func (a ApiFile) decl() {
 		ctx.declNewTypes()
 		// adjust import
 		ctx.adjustImport(b)
+		// format
+		ctx.formatCode()
 		// write output
 		if err = ctx.OutputToFile(); err != nil {
 			log.Println(b.Name, err)
