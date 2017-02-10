@@ -13,7 +13,7 @@ import (
 // properties of the constructed menu items.
 //
 // !!! You can use the go style struct literal here
-func ExBuildFromTemplate(opts []ExMenuItemOption) *Menu {
+func BuildFromTemplateEx(opts []MenuItemOptionEx) *Menu {
 	o := make(js.S, 0)
 	for _, opt := range opts {
 		o = append(o, opt.toMap())

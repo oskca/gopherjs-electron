@@ -59,7 +59,7 @@ const (
 	RoleServices = "services "
 )
 
-type ExMenuItemOption struct {
+type MenuItemOptionEx struct {
 	// *js.Object
 	// click Function (optional) - Will be called with click(menuItem, browserWindow, event)
 	// when the menu item is clicked.
@@ -101,7 +101,7 @@ type ExMenuItemOption struct {
 	Position string
 }
 
-func (o *ExMenuItemOption) toMap() js.M {
+func (o *MenuItemOptionEx) toMap() js.M {
 	m := make(js.M)
 	if o.Click != nil {
 		m["click"] = o.Click
@@ -152,7 +152,7 @@ func (o *ExMenuItemOption) toMap() js.M {
 	return m
 }
 
-func ExNewItem(opt ExMenuItemOption) *MenuItem {
+func NewItemEx(opt MenuItemOptionEx) *MenuItem {
 	o := electron.Get("Menu").Call("MenuItem", opt.toMap())
 	return &MenuItem{
 		Object: o,
