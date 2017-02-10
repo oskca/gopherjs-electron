@@ -3,3 +3,4 @@ index.js
 *.map
 rawapi/
 raw_*
+*.js

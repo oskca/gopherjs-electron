@@ -5,28 +5,27 @@ import (
 
 	"github.com/gopherjs/gopherjs/js"
 	electron "github.com/oskca/gopherjs-electron"
-	"github.com/oskca/gopherjs-electron/api/main/browserwindow"
 	"github.com/oskca/gopherjs-electron/api/main/menu"
 	nodejs "github.com/oskca/gopherjs-nodejs"
 )
 
 func main() {
 	app := electron.GetApp()
-	app.On(electron.EvtReady, func(args ...*js.Object) {
-		opt := browserwindow.NewOption()
-		bw := browserwindow.New(opt)
-		subm := menu.BuildFromTemplate([]menu.Option{
+	app.On(electron.EvtAppReady, func(args ...*js.Object) {
+		opt := electron.NewBrowserWindowOption()
+		bw := electron.NewBrowserWindow(opt)
+		subm := electron.BuildFromTemplateEx([]electron.MenuItemOptionEx{
 			{
 				Label: "sub1",
-				ClickEx: func(mi *menu.Item) {
+				ClickEx: func(mi *electron.MenuItem) {
 					println("sub1 clicked")
 				},
 			},
 		})
-		m := menu.BuildFromTemplate([]menu.Option{
+		m := electron.BuildFromTemplateEx([]electron.MenuItemOptionEx{
 			{
 				Label: "Show &Help",
-				ClickEx: func(mi *menu.Item) {
+				ClickEx: func(mi *electron.MenuItem) {
 					println(time.Now().String(), "clicked:", mi.Label)
 				},
 			},
@@ -45,10 +44,10 @@ func main() {
 			},
 			{
 				Label: "sub options",
-				SubMenuOptions: []menu.Option{
+				SubMenuOptions: []electron.MenuItemOptionEx{
 					{
 						Label: "sub option",
-						ClickEx: func(mi *menu.Item) {
+						ClickEx: func(mi *electron.MenuItem) {
 							println(mi.Label, "==> called")
 						},
 					},
@@ -56,6 +55,6 @@ func main() {
 			},
 		})
 		bw.SetMenu(m)
-		bw.LoadURL("file://" + nodejs.DirName() + "/index.html")
+		bw.LoadURL("file://"+nodejs.DirName()+"/index.html", nil)
 	})
 }
