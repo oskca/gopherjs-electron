@@ -286,9 +286,9 @@ func (m *Method) defConstructorBody(w *Context, rawMethodName string) {
 	fmt.Fprintf(w, "o := electron.Get(\"%s\")\n", w.base.Name)
 	fmt.Fprintf(w, "ret := ")
 	// parameters
-	fmt.Fprintf(w, "o.Invoke(\"New\"")
+	fmt.Fprintf(w, "o.New(")
 	for _, p := range m.Parameters {
-		fmt.Fprintf(w, ", %s", p.goSym())
+		fmt.Fprintf(w, "%s,", p.goSym())
 	}
 	fmt.Fprintf(w, ")\n")
 	// return
