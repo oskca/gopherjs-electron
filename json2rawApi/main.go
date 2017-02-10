@@ -249,10 +249,11 @@ func process(fpath string) error {
 	if err != nil {
 		return err
 	}
-	log.Println("Processing api file", fpath, "with", len(a), "modules.")
+	log.Println("Processing api file:", fpath)
 	if err = a.decl(); err != nil {
 		return err
 	}
+	log.Println("Done with", len(a), "modules.")
 	return nil
 }
 
