@@ -63,7 +63,7 @@ func (w *Context) adjustImport(b *Block) {
 	}
 	buf := bytes.NewBuffer(nil)
 	src := w.w.Bytes()
-	fmt.Fprintf(buf, "package electron\n")
+	fmt.Fprintf(buf, "package rawapi\n")
 	if b.isEventEmitter() {
 		fmt.Fprintf(buf, "import \"github.com/oskca/gopherjs-nodejs/events\"\n")
 	}
@@ -249,16 +249,24 @@ func process(fpath string) error {
 	if err != nil {
 		return err
 	}
-	a.decl()
+	log.Println("Processing api file", fpath, "with", len(a), "modules.")
+	if err = a.decl(); err != nil {
+		return err
+	}
 	return nil
 }
 
 func main() {
-	for i := 0; i < flag.NArg(); i++ {
-		log.Println("Processing", flag.Arg(i))
-		if err := process(flag.Arg(i)); err != nil {
-			log.Println(err)
-		}
+	err := os.RemoveAll(outDir)
+	if err != nil {
+		log.Fatalln("error cleaning", outDir, ":", err.Error())
+	}
+	err = os.MkdirAll(outDir, 0777)
+	if err != nil {
+		log.Fatalln("error cleaning", outDir, ":", err.Error())
+	}
+	if err = process(flag.Arg(0)); err != nil {
+		log.Println(err.Error())
 	}
 }
 

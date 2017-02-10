@@ -423,7 +423,7 @@ func (a ApiFile) decl() error {
 	}
 	// blocks
 	for _, b := range a {
-		log.Println("Processing", b.Base.Name)
+		log.Println("Processing module:", b.Base.Name)
 		ctx, err := newContext(b.Base)
 		if err != nil {
 			log.Println(b.Name, err)

@@ -1,6 +1,6 @@
 package main
 
-var electronTemplate = `package electron
+var electronTemplate = `package rawapi
 
 import "github.com/gopherjs/gopherjs/js"
 
