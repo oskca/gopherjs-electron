@@ -4,7 +4,7 @@ import (
 	"github.com/gopherjs/gopherjs/js"
 )
 
-func NewBrowserWindowOption() *BrowserWindowBrowserWindowOptions {
+func ExNewBrowserWindowOption() *BrowserWindowBrowserWindowOptions {
 	opt := &BrowserWindowBrowserWindowOptions{
 		Object: js.Global.Get("Object").New(),
 	}
