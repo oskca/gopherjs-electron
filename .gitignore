@@ -2,3 +2,4 @@ main.js
 index.js
 *.map
 rawapi/
+raw_*

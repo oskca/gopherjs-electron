@@ -7,8 +7,6 @@ import (
 	"log"
 	"strings"
 
-	"os"
-
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -405,22 +403,7 @@ func (a ApiFile) test() {
 	}
 }
 
-func (a ApiFile) createElectronTemplate() error {
-	opath := outDir + "/electron.go"
-	w, err := os.Create(opath)
-	if err != nil {
-		return err
-	}
-	_, err = io.WriteString(w, electronTemplate)
-	return err
-}
-
 func (a ApiFile) decl() error {
-	// electron template
-	err := a.createElectronTemplate()
-	if err != nil {
-		return err
-	}
 	// blocks
 	for _, b := range a {
 		log.Println("Processing module:", b.Base.Name)

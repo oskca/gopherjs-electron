@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"path/filepath"
 )
 
 var (
@@ -43,13 +44,13 @@ func newContext(b *Base) (w *Context, err error) {
 }
 
 func getOutputFileName(baseFileName string) string {
-	opath := outDir + "/" + strings.ToLower(baseFileName) + ".go"
+	opath := outDir + "/" + baseFileName + ".go"
 	_, err := os.Stat(opath)
 	if err != nil && os.IsNotExist(err) {
 		return opath
 	}
 	for i := 2; ; i++ {
-		opath = outDir + "/" + strings.ToLower(baseFileName) + fmt.Sprint(i) + ".go"
+		opath = outDir + "/" + baseFileName + fmt.Sprint(i) + ".go"
 		_, err = os.Stat(opath)
 		if err != nil && os.IsNotExist(err) {
 			break
@@ -63,7 +64,7 @@ func (w *Context) adjustImport(b *Block) {
 	}
 	buf := bytes.NewBuffer(nil)
 	src := w.w.Bytes()
-	fmt.Fprintf(buf, "package raw\n")
+	fmt.Fprintf(buf, "package electron\n")
 	if b.isEventEmitter() {
 		fmt.Fprintf(buf, "import \"github.com/oskca/gopherjs-nodejs/events\"\n")
 	}
@@ -89,7 +90,7 @@ func (w *Context) formatCode() (err error) {
 
 func (w *Context) OutputToFile() error {
 	// flush compoundTypes
-	opath := getOutputFileName(strings.ToLower(w.base.Name))
+	opath := getOutputFileName("raw_" + strings.ToLower(w.base.Name))
 	ow, err := os.Create(opath)
 	if err != nil {
 		return err
@@ -258,14 +259,19 @@ func process(fpath string) error {
 }
 
 func main() {
-	err := os.RemoveAll(outDir)
+	// mkdir
+	err := os.MkdirAll(outDir, 0777)
 	if err != nil {
 		log.Fatalln("error cleaning", outDir, ":", err.Error())
 	}
-	err = os.MkdirAll(outDir, 0777)
-	if err != nil {
-		log.Fatalln("error cleaning", outDir, ":", err.Error())
-	}
+	// clean all raw_* files
+	filepath.Walk(outDir, func(path string, info os.FileInfo, err error) error {
+		if strings.HasPrefix(path, "raw_") {
+			os.Remove(path)
+		}
+		return nil
+	})
+	// begin process
 	if err = process(flag.Arg(0)); err != nil {
 		log.Println(err.Error())
 	}
