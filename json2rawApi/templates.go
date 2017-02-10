@@ -2,7 +2,7 @@ package main
 
 var moduleGetterTemplate = `
 func GetModule() *Module {
-	o := electron.Get("%s")
+	o := Get("%s")
 	return &Module{
 		Object: o,
 	}
@@ -11,7 +11,7 @@ func GetModule() *Module {
 
 var moduleGetterTemplateWithEmitter = `
 func GetModule() *Module {
-	o := electron.Get("%s")
+	o := Get("%s")
 	return &Module{
 		Emitter: events.New(o),
 	}
