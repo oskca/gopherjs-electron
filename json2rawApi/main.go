@@ -63,7 +63,7 @@ func (w *Context) adjustImport(b *Block) {
 	}
 	buf := bytes.NewBuffer(nil)
 	src := w.w.Bytes()
-	fmt.Fprintf(buf, "package rawapi\n")
+	fmt.Fprintf(buf, "package raw\n")
 	if b.isEventEmitter() {
 		fmt.Fprintf(buf, "import \"github.com/oskca/gopherjs-nodejs/events\"\n")
 	}
