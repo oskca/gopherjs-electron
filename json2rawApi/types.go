@@ -142,6 +142,10 @@ func basicType(typ string) string {
 		return "float64"
 	case "Boolean", "BOOLEAN":
 		return "bool"
+	case "Menu", "MenuItem", "NativeImage", "WebRequest", "WebContents",
+		"Session", "Tray", "BrowserWindowProxy", "ClientRequest", "Cookies",
+		"DownloadItem", "BrowserWindow", "IncomingMessage":
+		return "*" + typ
 	}
 	return "*js.Object"
 }
