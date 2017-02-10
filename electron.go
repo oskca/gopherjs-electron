@@ -11,6 +11,7 @@ var (
 
 //go:generate -command json2rawApi go run json2rawApi/main.go json2rawApi/types.go json2rawApi/templates.go
 //go:generate json2rawApi -c -o rawapi json2rawApi/electron-api-1.4.15.json
+//go:generate go install github.com/oskca/gopherjs-electron/rawapi
 
 // Get returns a electron or `electron.remote` module
 func Get(name string) *js.Object {
