@@ -2,5 +2,5 @@ main.js
 index.js
 *.map
 rawapi/
-raw_*
+#raw_*
 *.js
