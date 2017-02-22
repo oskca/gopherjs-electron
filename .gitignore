@@ -4,3 +4,4 @@ index.js
 rawapi/
 #raw_*
 *.js
+.vscode/
